@@ -1,0 +1,11 @@
+# binaries
+bad_apple
+
+# vim
+*.swp
+*~
+
+# c object files
+*.o
+*.a
+*.i
