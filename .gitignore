@@ -9,3 +9,11 @@ bad_apple
 *.o
 *.a
 *.i
+
+# media files
+*.mp4
+*.mp4.old
+*.png
+
+# python
+__pycache__
