@@ -12,7 +12,8 @@ CPPFLAGS=-Isrc
 TARGET=voronoi_fitter
 OBJ_MAIN=src/main.o
 OBJ=src/logger/logger.o \
-	src/voronoi/voronoi.o
+	src/voronoi/voronoi.o \
+	src/image/image.o
 
 .PHONY: all clean
 
@@ -28,17 +29,18 @@ convert_images1:
 	$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
 
 fit_voronoi: $(TARGET)
-	./voronoi $(IMAGES_BNW) $(IMAGES_VORONOI)
+	./$(TARGET) $(IMAGES_BNW) $(IMAGES_VORONOI)
 
 convert_images2:
 	$(PYTHON) py/bnw2img.py $(IMAGES_VORONOI) $(IMAGES_OUTPUT)
 
 group_frames:
-	[ $(IMAGES_OUTPUT)/frame0001.png -ot $(VIDEO_IN) ] && ffmpeg -framerate 60 \
-		-i $(IMAGES_OUTPUT)/frame%04d.png $(VIDEO_OUT) || \
-		echo "Skipping frames grouping"
+	$(RM) $(VIDEO_OUT)
+	[ $(IMAGES_OUTPUT)/frame0001.png -nt $(VIDEO_OUT) ] \
+		&& ffmpeg -framerate 60 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
+		-pix_fmt yuv420p $(VIDEO_OUT) || echo "Skipping frames grouping"
 
-# main pipeline part with C code
+# Voronoi part of the pipeline, with C code
 
 $(TARGET): $(OBJ_MAIN) $(OBJ)
 	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
@@ -53,4 +55,5 @@ clean:
 clean-cache:
 	$(RM) $(IMAGES_INPUT)/* $(IMAGES_BNW)/* $(IMAGES_VORONOI)/* \
 		$(IMAGES_OUTPUT)/* $(OUTPUT)
+	$(RM) $(VIDEO_OUT)
 	$(RM) -r **/__pycache__

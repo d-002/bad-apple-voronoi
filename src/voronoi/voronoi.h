@@ -12,7 +12,8 @@ struct voronoi_data
     size_t n_cells;
 };
 
-enum error_code voronoi_process_frame(char *path,
+enum error_code voronoi_process_frame(const char *source_path,
+                                      const char *destination_path,
                                       struct voronoi_data **shared_data);
 
 #endif /* ! VORONOI_H */

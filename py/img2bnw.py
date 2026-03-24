@@ -1,16 +1,15 @@
 from common import checks, main
 from PIL import Image
-import io
 
 def read_func(path):
-    image = Image.open(path)
+    image = Image.open(path).convert('RGB')
     w, h = image.size
     pixels = image.get_flattened_data()
-    buffer = io.BytesIO()
-    buffer.write(chr(w // 256).encode())
-    buffer.write(chr(w % 256).encode())
-    buffer.write(chr(h // 256).encode())
-    buffer.write(chr(h % 256).encode())
+    buf = bytearray(5 + w * h // 8)
+    buf[0] = w >> 8
+    buf[1] = w & 0xff
+    buf[2] = h >> 8
+    buf[3] = h & 0xff
 
     i = 0
     while i < w * h:
@@ -23,9 +22,9 @@ def read_func(path):
                 value = 0
             n = (n << 1) + value
 
-        buffer.write(chr(n).encode())
+        buf[i // 8 + 4] = n
 
-    return buffer.getvalue()
+    return buf
 
 def transform_func(data):
     return data

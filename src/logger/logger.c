@@ -7,7 +7,7 @@ void log_inner(const char *prefix, const char *format, va_list args)
 {
     fputs(prefix, stderr);
 
-    fputs("bad_apple: ", stderr);
+    fputs("voronoi_fitter: ", stderr);
 
     vfprintf(stderr, format, args);
     putc('\n', stderr);

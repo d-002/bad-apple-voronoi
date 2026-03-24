@@ -5,8 +5,12 @@ from threading import Thread
 from multiprocessing import Manager, Pool
 
 def checks():
-    global source, destination, list_source, list_destination
+    global force, source, destination, list_source, list_destination
 
+    force = False
+    while '-f' in sys.argv:
+        force = True
+        sys.argv.remove('-f')
     if len(sys.argv) != 3:
         print('Wrong arguments.')
         exit(1)
@@ -30,7 +34,6 @@ def worker(*args, **kwargs):
 
             lock.acquire()
             shared_value.value += 1
-            #print(lock, shared_value.value)
             lock.release()
 
     except Exception as e:
@@ -81,7 +84,7 @@ def main(read_func, transform_func, write_func):
         else:
             add = True
 
-        if add:
+        if add or force:
             todo.add(file)
 
     manager = Manager()
@@ -89,7 +92,11 @@ def main(read_func, transform_func, write_func):
     shared_value = manager.Value('i', 0)
 
     todo = list(todo)
-    n_workers = max(2, os.process_cpu_count())
+    n_workers = min(max(2, os.process_cpu_count()), len(todo))
+    if not n_workers:
+        print('Nothing to do.')
+        return
+
     print(f'Found {len(todo)} files to convert, splitting in '\
           f'{n_workers} workers.')
 

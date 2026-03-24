@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <linux/limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -8,6 +9,24 @@
 #include "voronoi/voronoi.h"
 
 #define MAX_NUM_FILES 10000
+
+char *join_path(char *path1, char *path2)
+{
+    size_t length1 = strlen(path1);
+    size_t length2 = strlen(path2);
+    char *joined = calloc(length1 + length2 + 2, sizeof(char));
+    if (joined == NULL)
+    {
+        log_alloc_error();
+        return NULL;
+    }
+
+    memcpy(joined, path1, length1);
+    joined[length1] = '/';
+    memcpy(joined + length1 + 1, path2, length2);
+
+    return joined;
+}
 
 enum error_code add_files_sorted(char *path, char *names[MAX_NUM_FILES],
                                  size_t *len)
@@ -34,7 +53,6 @@ enum error_code add_files_sorted(char *path, char *names[MAX_NUM_FILES],
             return ALLOC_ERROR;
         }
 
-        loginfo("%s", name);
         size_t length = strlen(name);
         char *copy = calloc(length + 1, sizeof(char));
         if (copy == NULL)
@@ -90,7 +108,19 @@ int main(int argc, char *argv[])
     struct voronoi_data *shared_data = NULL;
     for (size_t i = 0; i < len; i++)
     {
-        err = voronoi_process_frame(names[i], &shared_data);
+        char *source_path = join_path(source, names[i]);
+        char *destination_path = join_path(destination, names[i]);
+        if (source_path == NULL || destination_path == NULL)
+        {
+            free(source_path);
+            free(destination_path);
+            err = ALLOC_ERROR;
+            break;
+        }
+        err =
+            voronoi_process_frame(source_path, destination_path, &shared_data);
+        free(source_path);
+        free(destination_path);
         if (err != SUCCESS)
             break;
     }

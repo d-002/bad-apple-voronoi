@@ -2,10 +2,12 @@
 
 #include <stdlib.h>
 
+#include "image/image.h"
 #include "logger/logger.h"
 #include "utils/errors.h"
 
-enum error_code voronoi_process_frame(char *path,
+enum error_code voronoi_process_frame(const char *source_path,
+                                      const char *destination_path,
                                       struct voronoi_data **shared_data)
 {
     if (*shared_data == NULL)
@@ -18,7 +20,13 @@ enum error_code voronoi_process_frame(char *path,
         }
     }
 
-    loginfo("Processing frame '%s'", path);
+    struct image image;
+    enum error_code err = image_load(source_path, &image);
+    if (err != SUCCESS)
+        return err;
 
-    return SUCCESS;
+    err = image_save(&image, destination_path);
+
+    free(image.pixels);
+    return err;
 }
