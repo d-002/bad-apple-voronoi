@@ -80,18 +80,24 @@ int main(int argc, char *argv[])
     if (err != SUCCESS)
         return err;
 
-    start = now();
-    struct voronoi_data *shared_data = NULL;
-    for (size_t i = 0; i < len; i++)
+    if (something_to_do(names, source, destination, len))
     {
-        err = process_file(names[i], source, destination, &shared_data);
-        progress_bar(i + 1, len);
+        start = now();
+        struct voronoi_data *shared_data = NULL;
+        for (size_t i = 0; i < len; i++)
+        {
+            err = process_file(names[i], source, destination, &shared_data);
+            progress_bar(i + 1, len);
+        }
+
+        putchar('\n');
+        free(shared_data);
     }
-    putchar('\n');
+    else
+        printf("%s: nothing to do.\n", argv[0]);
 
     for (size_t i = 0; i < len; i++)
         free(names[i]);
-    free(shared_data);
 
     return err;
 }

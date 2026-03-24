@@ -94,7 +94,7 @@ def main(read_func, transform_func, write_func):
     todo = list(todo)
     n_workers = min(max(2, os.process_cpu_count()), len(todo))
     if not n_workers:
-        print('Nothing to do.')
+        print(f'{sys.argv[0]}: nothing to do.')
         return
 
     print(f'Found {len(todo)} files to convert, splitting in '\
