@@ -12,9 +12,10 @@ CPPFLAGS=-Isrc
 
 TARGET=voronoi_fitter
 OBJ_MAIN=src/main.o
-OBJ=src/logger/logger.o \
-	src/voronoi/voronoi.o \
-	src/image/image.o
+OBJ=src/image/image.o \
+	src/files/files.o \
+	src/logger/logger.o \
+	src/voronoi/voronoi.o
 
 .PHONY: all clean
 
