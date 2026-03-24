@@ -9,15 +9,16 @@ PYTHON:=python3
 CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic -O1
 CPPFLAGS=-Isrc
 
-TARGET_FIT=bad_apple
+TARGET=voronoi_fitter
 OBJ_MAIN=src/main.o
-OBJ=src/logger/logger.o
+OBJ=src/logger/logger.o \
+	src/voronoi/voronoi.o
 
-.PHONY: all fit check dev clean
+.PHONY: all clean
 
 # pipeline steps
 
-all: extract_frames convert_images1 fit convert_images2 group_frames
+all: extract_frames convert_images1 fit_voronoi convert_images2 group_frames
 
 extract_frames:
 	[ $(IMAGES_INPUT)/frame0001.png -ot $(VIDEO_IN) ] && ffmpeg -i $(VIDEO_IN) \
@@ -26,7 +27,8 @@ extract_frames:
 convert_images1:
 	$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
 
-fit: $(TARGET)
+fit_voronoi: $(TARGET)
+	./voronoi $(IMAGES_BNW) $(IMAGES_VORONOI)
 
 convert_images2:
 	$(PYTHON) py/bnw2img.py $(IMAGES_VORONOI) $(IMAGES_OUTPUT)
