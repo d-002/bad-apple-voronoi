@@ -24,9 +24,11 @@ all: extract_frames convert_images1 fit_voronoi convert_images2 group_frames
 
 extract_frames:
 	[ $(IMAGES_INPUT)/frame0001.png -ot $(VIDEO_IN) ] && ffmpeg -i $(VIDEO_IN) \
-		$(IMAGES_INPUT)/frame%04d.png || echo "Skipping frames extraction"
+		$(IMAGES_INPUT)/frame%04d.png -y -hide_banner -loglevel warning \
+		|| echo "Skipping frames extraction"
 	# also extract audio
-	ffmpeg -i $(VIDEO_IN) -vn -acodec copy $(EXTRACTED_AUDIO)
+	ffmpeg -i $(VIDEO_IN) -vn -acodec copy $(EXTRACTED_AUDIO) -y -hide_banner \
+		-loglevel warning
 
 convert_images1:
 	$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
@@ -38,13 +40,12 @@ convert_images2:
 	$(PYTHON) py/bnw2img.py $(IMAGES_VORONOI) $(IMAGES_OUTPUT)
 
 group_frames:
-	$(RM) $(VIDEO_OUT)
 	[ $(IMAGES_OUTPUT)/frame0001.png -nt $(VIDEO_OUT) ] \
 		&& ffmpeg -framerate 60 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
-		-pix_fmt yuv420p $(VIDEO_OUT) && ffmpeg -i $(VIDEO_OUT) -i \
-		$(EXTRACTED_AUDIO) -c:v copy -c:a aac -strict experimental \
-		temp_video.mp4 && mv temp_video.mp4 $(VIDEO_OUT) \
-		|| echo "Skipping frames grouping"
+		-pix_fmt yuv420p $(VIDEO_OUT) -y -hide_banner -loglevel warning \
+		&& ffmpeg -i $(VIDEO_OUT) -i $(EXTRACTED_AUDIO) -c:v copy -c:a aac \
+		-strict experimental temp_video.mp4 -y -hide_banner -loglevel warning \
+		&& mv temp_video.mp4 $(VIDEO_OUT) || echo "Skipping frames grouping"
 
 # Voronoi part of the pipeline, with C code
 
