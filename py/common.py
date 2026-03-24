@@ -1,6 +1,8 @@
 import os
 import sys
 import time
+from threading import Thread
+from multiprocessing import Manager, Pool
 
 def checks():
     global source, destination, list_source, list_destination
@@ -17,7 +19,51 @@ def checks():
     list_source = set(os.listdir(source))
     list_destination = set(os.listdir(destination))
 
+def worker(*args, **kwargs):
+    try:
+        shared_value, source, destination, read_func, transform_func, \
+                write_func, files = args
+        for file in files:
+            data_source = read_func(os.path.join(source, file))
+            data_destination = transform_func(data_source)
+            write_func(os.path.join(destination, file), data_destination)
+
+            lock.acquire()
+            shared_value.value += 1
+            #print(lock, shared_value.value)
+            lock.release()
+
+    except Exception as e:
+        print('Exception in worker:', file=sys.stderr)
+        print(e, file=sys.stderr)
+
+def share_lock(l):
+    global lock
+    lock = l
+
+def progress_bar(n, shared_value):
+    start = time.time()
+
+    while not done:
+        time.sleep(.5)
+
+        spent = time.time() - start
+        i = shared_value.value
+        eta = spent * (n / (i + 1) - 1)
+        min_s, sec_s = divmod(round(spent), 60)
+        min_e, sec_e = divmod(round(eta), 60)
+
+        size = 50
+        prop = i / n
+        count = round(prop * size)
+        print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
+                f'{round(prop * 100)}%, spent: {min_s:02}:{sec_s:02}, ' \
+                f'eta: {min_e:02}:{sec_e:02}', end='\r')
+
+    print(f'\n{sys.argv[0]} is done.')
+
 def main(read_func, transform_func, write_func):
+    global done
     todo = set()
 
     for file in list_destination:
@@ -34,24 +80,25 @@ def main(read_func, transform_func, write_func):
         if add:
             todo.add(file)
 
-    print(f'Found {len(todo)} files to convert.')
-    start = time.time()
-    for i, file in enumerate(todo):
-        data_source = read_func(os.path.join(source, file))
-        data_destination = transform_func(data_source)
-        write_func(os.path.join(destination, file), data_destination)
+    manager = Manager()
+    lock = manager.Lock()
+    shared_value = manager.Value('i', 0)
 
-        spent = time.time() - start
-        eta = spent * (len(todo) / (i + 1) - 1)
-        min_s, sec_s = divmod(round(spent), 60)
-        min_e, sec_e = divmod(round(eta), 60)
+    todo = list(todo)
+    n_workers = max(2, os.process_cpu_count())
+    print(f'Found {len(todo)} files to convert, splitting in '\
+          f'{n_workers} workers.')
 
-        size = 50
-        prop = i / len(todo)
-        count = round(prop * size)
-        print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
-                f'{round(prop * 100)}%, spent: {min_s:02}:{sec_s:02}, ' \
-                f'eta: {min_e:02}:{sec_e:02}', end='\r')
-    print()
+    increment = int(len(todo) / (n_workers - 1))
+    ranges = [(i * increment, min((i + 1) * increment, len(todo)))
+               for i in range(n_workers)]
 
-    print(f'{sys.argv[0]} is done.')
+    done = False
+    Thread(target=progress_bar, args=(len(todo), shared_value)).start()
+    pool = Pool(n_workers, initializer=share_lock, initargs=(lock,))
+    for a, b in ranges:
+        pool.apply_async(worker, (shared_value, source, destination, read_func,
+                                  transform_func, write_func, todo[a:b]))
+    pool.close()
+    pool.join()
+    done = True

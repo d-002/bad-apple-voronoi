@@ -2,8 +2,6 @@ from common import checks, main
 from PIL import Image
 import io
 
-checks()
-
 def read_func(path):
     image = Image.open(path)
     w, h = image.size
@@ -36,4 +34,7 @@ def write_func(path, data):
     with open(path, 'wb') as f:
         f.write(data)
 
-main(read_func, transform_func, write_func)
+if __name__ == '__main__':
+    checks()
+
+    main(read_func, transform_func, write_func)
