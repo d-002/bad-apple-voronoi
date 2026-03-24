@@ -51,3 +51,4 @@ clean:
 clean-cache:
 	$(RM) $(IMAGES_INPUT)/* $(IMAGES_BNW)/* $(IMAGES_VORONOI)/* \
 		$(IMAGES_OUTPUT)/* $(OUTPUT)
+	$(RM) -r **/__pycache__
