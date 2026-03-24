@@ -2,6 +2,7 @@ IMAGES_INPUT=images/1_raw
 IMAGES_BNW=images/2_bnw
 IMAGES_VORONOI=images/3_voronoi
 IMAGES_OUTPUT=images/4_output
+EXTRACTED_AUDIO=audio.m4a
 VIDEO_IN=video_in.mp4
 VIDEO_OUT=video_out.mp4
 
@@ -24,6 +25,8 @@ all: extract_frames convert_images1 fit_voronoi convert_images2 group_frames
 extract_frames:
 	[ $(IMAGES_INPUT)/frame0001.png -ot $(VIDEO_IN) ] && ffmpeg -i $(VIDEO_IN) \
 		$(IMAGES_INPUT)/frame%04d.png || echo "Skipping frames extraction"
+	# also extract audio
+	ffmpeg -i $(VIDEO_IN) -vn -acodec copy $(EXTRACTED_AUDIO)
 
 convert_images1:
 	$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
@@ -38,7 +41,10 @@ group_frames:
 	$(RM) $(VIDEO_OUT)
 	[ $(IMAGES_OUTPUT)/frame0001.png -nt $(VIDEO_OUT) ] \
 		&& ffmpeg -framerate 60 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
-		-pix_fmt yuv420p $(VIDEO_OUT) || echo "Skipping frames grouping"
+		-pix_fmt yuv420p $(VIDEO_OUT) && ffmpeg -i $(VIDEO_OUT) -i \
+		$(EXTRACTED_AUDIO) -c:v copy -c:a aac -strict experimental \
+		temp_video.mp4 && mv temp_video.mp4 $(VIDEO_OUT) \
+		|| echo "Skipping frames grouping"
 
 # Voronoi part of the pipeline, with C code
 
@@ -55,5 +61,5 @@ clean:
 clean-cache:
 	$(RM) $(IMAGES_INPUT)/* $(IMAGES_BNW)/* $(IMAGES_VORONOI)/* \
 		$(IMAGES_OUTPUT)/* $(OUTPUT)
-	$(RM) $(VIDEO_OUT)
+	$(RM) $(VIDEO_OUT) $(EXTRACTED_AUDIO)
 	$(RM) -r **/__pycache__

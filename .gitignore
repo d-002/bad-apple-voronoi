@@ -14,6 +14,7 @@ voronoi_fitter
 *.mp4
 *.mp4.old
 *.png
+*.m4a
 
 # python
 __pycache__
