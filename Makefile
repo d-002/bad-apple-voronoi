@@ -1,17 +1,19 @@
 CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic -O1
 CPPFLAGS=-Isrc
-LDLIBS=-lm -lz -lSDL2 -lSDL2_Image
+LDLIBS=-lm -lSDL2 -lSDL2_image
 
 TARGET=bad_apple
 TARGET_FUNC=tests/testsuite.sh
 OBJ_MAIN=src/main.o
-OBJ=
+OBJ=src/image/loadimage.o \
+	src/logger/logger.o
 
 .PHONY: all dev clean
 
 all: $(TARGET)
 
 $(TARGET): $(OBJ_MAIN) $(OBJ)
+	$(CC) -o $@ $^ $(LDLIBS) $(LDFLAGS)
 
 check: all
 	./$(TARGET_FUNC)
