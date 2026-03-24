@@ -60,7 +60,7 @@ dev: all
 clean:
 	$(RM) $(TARGET) $(OBJ_MAIN) $(OBJ)
 
-clean-cache:
+clean-cache: clean
 	$(RM) $(IMAGES_INPUT)/* $(IMAGES_BNW)/* $(IMAGES_VORONOI)/* \
 		$(IMAGES_OUTPUT)/* $(OUTPUT)
 	$(RM) $(VIDEO_OUT) $(EXTRACTED_AUDIO)

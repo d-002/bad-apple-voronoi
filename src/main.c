@@ -1,18 +1,24 @@
+#ifndef _POSIX_C_SOURCE
+#    define _POSIX_C_SOURCE 199309L
+#endif /* ! _POSIX_C_SOURCE */
 #include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "files/files.h"
 #include "logger/logger.h"
 #include "utils/errors.h"
 
-static int start;
+static float start;
 
-int now()
+float now()
 {
-    return 0;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return ts.tv_sec + ts.tv_nsec * 1e-9;
 }
 
 enum error_code check_args(int argc, char *argv[], char **source,
@@ -41,10 +47,12 @@ enum error_code check_args(int argc, char *argv[], char **source,
 
 void progress_bar(int i, int len)
 {
-    int spent = now() - start;
-    int eta = spent * (len / (i + 1) - 1);
-    int min_s = spent / 60, sec_s = spent % 60;
-    int min_e = eta / 60, sec_e = eta % 60;
+    float spent = now() - start;
+    float eta = spent * ((float)len / (i + 1) - 1);
+    if (eta < 0)
+        eta = 0;
+    int min_s = spent / 60, sec_s = (int)(spent) % 60;
+    int min_e = eta / 60, sec_e = (int)(eta) % 60;
 
     static const int size = 50;
     float prop;

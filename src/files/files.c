@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "logger/logger.h"
 
@@ -85,17 +86,20 @@ bool something_to_do(char *names[MAX_NUM_FILES], char *source,
         char *source_path = join_path(source, names[i]);
         char *destination_path = join_path(destination, names[i]);
 
-        struct stat s1, s2;
-        stat(source, &s1);
-        stat(destination, &s2);
-        bool res = false;
-        if (ctime(&s1.st_mtime) > ctime(&s2.st_mtime))
-            res = true;
+        bool todo = access(destination_path, F_OK) != 0;
+        if (!todo)
+        {
+            struct stat s1, s2;
+            stat(source_path, &s1);
+            stat(destination_path, &s2);
+            if (s1.st_mtime > s2.st_mtime)
+                todo = true;
+        }
 
         free(source_path);
         free(destination_path);
-        if (res)
-            return res;
+        if (todo)
+            return todo;
     }
 
     return false;
