@@ -51,8 +51,10 @@ void progress_bar(int i, int len)
 {
     const double spent = now() - start;
     const double eta = MAX2(spent * ((double)len / (i + 1) - 1), 0);
-    const int min_s = spent / 60, sec_s = (int)(spent) % 60;
-    int min_e = eta / 60, sec_e = (int)(eta) % 60;
+    const int hr_s = spent / 3600, min_s = (int)(spent / 60) % 60,
+              sec_s = (int)(spent) % 60;
+    int hr_e = eta / 3600, min_e = (int)(eta / 60) % 60,
+        sec_e = (int)(eta) % 60;
 
     static const int size = 50;
     double prop;
@@ -71,8 +73,8 @@ void progress_bar(int i, int len)
         putchar('=');
     for (int i = count; i < size; i++)
         putchar(' ');
-    printf("] %3d%%, spent: %02d:%02d, eta: %02d:%02d", (int)(prop * 100),
-           min_s, sec_s, min_e, sec_e);
+    printf("] %3d%%, spent: %d:%02d:%02d, eta: %d:%02d:%02d", (int)(prop * 100),
+           hr_s, min_s, sec_s, hr_e, min_e, sec_e);
     putchar(VERBOSE ? '\n' : '\r');
     fflush(stdout);
 }

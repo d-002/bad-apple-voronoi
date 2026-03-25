@@ -47,8 +47,10 @@ def share_lock(l):
 def progress_bar(i, n):
     spent = time.time() - start
     eta = spent * (n / (i + 1) - 1)
-    min_s, sec_s = divmod(round(spent), 60)
-    min_e, sec_e = divmod(round(eta), 60)
+    hr_s, s = divmod(round(spent), 3600)
+    min_s, sec_s = divmod(s, 60)
+    hr_e, e = divmod(round(eta), 3600)
+    min_e, sec_e = divmod(e, 60)
 
     size = 50
     if n == 0:
@@ -58,8 +60,8 @@ def progress_bar(i, n):
         prop = i / n
     count = round(prop * size)
     print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
-            f'{round(prop * 100):>3}%, spent: {min_s:02}:{sec_s:02}, ' \
-            f'eta: {min_e:02}:{sec_e:02}', end='\r')
+            f'{round(prop * 100):>3}%, spent: {hr_s}:{min_s:02}:{sec_s:02}, ' \
+            f'eta: {hr_e}:{min_e:02}:{sec_e:02}', end='\r')
 
 def progress_bar_loop(n, shared_value):
     global start
