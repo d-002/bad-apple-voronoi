@@ -80,12 +80,14 @@ enum error_code image_fit(const struct image *image,
 
         if (ABS(prev_cost - cost) <= COST_STAGNATE_THRESHOLD)
         {
-            if (++consecutive_stagnate >= 10)
+            if (++consecutive_stagnate >= 5)
             {
                 done = true;
                 break;
             }
         }
+        else
+            consecutive_stagnate = 0;
         if (1 - cost > TARGET_FIT_PROPORTION)
         {
             done = true;

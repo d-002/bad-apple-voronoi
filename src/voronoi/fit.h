@@ -14,8 +14,8 @@
 // proportion of pixels that should be correct to end fitting process
 #define TARGET_FIT_PROPORTION .8
 // threshold to stop early if the target cost was not reached
-#define COST_STAGNATE_THRESHOLD 0
-#define MAX_ITERATIONS 200
+#define COST_STAGNATE_THRESHOLD 1e-9
+#define MAX_ITERATIONS 100
 
 enum error_code image_fit(const struct image *image,
                           struct voronoi_data *shared_data);
