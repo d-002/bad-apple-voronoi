@@ -5,18 +5,17 @@
 #include "shared_data.h"
 #include "utils/errors.h"
 
-// base learning rate, normalized later for cells positions because of the scale
-#define LEARNING_RATE .1
+// base learning rates, different for pos and weights because of the scale
+#define POS_LEARNING_RATE 2
+#define WEIGHT_LEARNING_RATE .02
 // learning rate decay each iteration
-#define LEARNING_RATE_DECAY .99
+#define LEARNING_RATE_DECAY .995
 // proportion of pixels that should be correct to end fitting process
-#define TARGET_FIT_PROPORTION .9
-// threshold to stop early if the target cost was not reached
-#define COST_STAGNATE_THRESHOLD .001
-#define MAX_ITERATIONS 1000
+#define TARGET_FIT_PROPORTION .6 // TODO increase
+#define MAX_ITERATIONS 300
 #define VERBOSE true
 
-enum error_code image_fit(struct image *image,
+enum error_code image_fit(const struct image *image,
                           struct voronoi_data *shared_data);
 
 #endif /* ! FIT_H */

@@ -3,14 +3,14 @@
 
 enum color_class
 {
-    BLACK,
-    WHITE,
+    BLACK = 0,
+    WHITE = 1,
 };
 
 struct cell
 {
-    int x;
-    int y;
+    double x;
+    double y;
     double weight;
 
     enum color_class color;

@@ -92,7 +92,7 @@ def main(read_func, transform_func, write_func):
     shared_value = manager.Value('i', 0)
 
     todo = list(todo)
-    n_workers = min(max(2, os.process_cpu_count()), len(todo))
+    n_workers = max(2, min(os.process_cpu_count(), len(todo)))
     if not n_workers:
         print(f'{sys.argv[0]}: nothing to do.')
         return

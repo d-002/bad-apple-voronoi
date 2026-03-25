@@ -5,15 +5,16 @@
 #include <stddef.h>
 
 #include "utils/errors.h"
-#include "voronoi/voronoi.h"
+#include "voronoi/shared_data.h"
 
 #define MAX_NUM_FILES 10000
 
-enum error_code add_files_sorted(char *path, char *names[MAX_NUM_FILES],
+enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
                                  size_t *len);
-bool something_to_do(char *names[MAX_NUM_FILES], char *source,
-                     char *destination, size_t len);
-enum error_code process_file(char *name, char *source, char *destination,
+bool something_to_do(char *const names[MAX_NUM_FILES], const char *source,
+                     const char *destination, size_t len);
+enum error_code process_file(const char *name, const char *source,
+                             const char *destination,
                              struct voronoi_data **shared_data);
 
 #endif /* ! FILES_H */

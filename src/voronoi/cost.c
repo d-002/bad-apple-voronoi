@@ -1,8 +1,10 @@
 #include "cost.h"
 
+#include <math.h>
+
 #include "utils/utils.h"
 
-double compute_cost(struct image *image, struct voronoi_data *shared_data)
+double compute_cost(const struct image *image, struct voronoi_data *shared_data)
 {
     size_t total_cost = 0;
 
@@ -11,16 +13,17 @@ double compute_cost(struct image *image, struct voronoi_data *shared_data)
         {
             enum color_class color1 = get_pixel(image, x, y);
 
-            double closest_dist2 = -1;
+            double closest_dist = -1;
             enum color_class color2 = false;
             for (int i = 0; i < N_CELLS; i++)
             {
-                struct cell *cell = shared_data->cells + i;
-                double dist2 = SQR(cell->x - x) + SQR(cell->y - y);
-                if (dist2 < closest_dist2 || closest_dist2 < 0)
+                const struct cell *cell = shared_data->cells + i;
+                double dist =
+                    sqrt(SQR(cell->x - x) + SQR(cell->y - y)) * cell->weight;
+                if (dist < closest_dist || closest_dist < 0)
                 {
                     color2 = cell->color;
-                    closest_dist2 = dist2;
+                    closest_dist = dist;
                 }
             }
 
@@ -30,8 +33,8 @@ double compute_cost(struct image *image, struct voronoi_data *shared_data)
     return (double)total_cost * SQR(PRECISION) / (image->w * image->h);
 }
 
-void compute_gradient(struct image *image, struct voronoi_data *shared_data,
-                      struct gradient *out)
+void compute_gradient(const struct image *image,
+                      struct voronoi_data *shared_data, struct gradient *out)
 {
     for (int i = 0; i < N_CELLS; i++)
     {
@@ -40,10 +43,10 @@ void compute_gradient(struct image *image, struct voronoi_data *shared_data,
         const double w = cell->weight;
         const int x1 = MAX2(0, x - SAMPLE_POS_RADIUS),
                   y1 = MAX2(0, x - SAMPLE_POS_RADIUS);
-        const double w1 = MAX2(MIN_RADIUS, w - SAMPLE_WEIGHT_RADIUS);
+        const double w1 = MAX2(MIN_WEIGHT, w - SAMPLE_WEIGHT_RADIUS);
         const int x2 = MIN2(image->w - 1, x + SAMPLE_POS_RADIUS),
                   y2 = MIN2(image->h, x + SAMPLE_POS_RADIUS);
-        const double w2 = MIN2(MAX_RADIUS, w + SAMPLE_WEIGHT_RADIUS);
+        const double w2 = MIN2(MAX_WEIGHT, w + SAMPLE_WEIGHT_RADIUS);
 
         if (x1 == x2)
             out->dx[i] = 0;

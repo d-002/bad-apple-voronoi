@@ -8,8 +8,9 @@
 #include <unistd.h>
 
 #include "logger/logger.h"
+#include "voronoi/voronoi.h"
 
-static char *join_path(char *path1, char *path2)
+static char *join_path(const char *path1, const char *path2)
 {
     size_t length1 = strlen(path1);
     size_t length2 = strlen(path2);
@@ -27,7 +28,7 @@ static char *join_path(char *path1, char *path2)
     return joined;
 }
 
-enum error_code add_files_sorted(char *path, char *names[MAX_NUM_FILES],
+enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
                                  size_t *len)
 {
     DIR *dir = opendir(path);
@@ -78,8 +79,8 @@ enum error_code add_files_sorted(char *path, char *names[MAX_NUM_FILES],
     return SUCCESS;
 }
 
-bool something_to_do(char *names[MAX_NUM_FILES], char *source,
-                     char *destination, size_t len)
+bool something_to_do(char *const names[MAX_NUM_FILES], const char *source,
+                     const char *destination, size_t len)
 {
     return true; // TODO remove
     for (size_t i = 0; i < len; i++)
@@ -106,7 +107,8 @@ bool something_to_do(char *names[MAX_NUM_FILES], char *source,
     return false;
 }
 
-enum error_code process_file(char *name, char *source, char *destination,
+enum error_code process_file(const char *name, const char *source,
+                             const char *destination,
                              struct voronoi_data **shared_data)
 {
     char *source_path = join_path(source, name);

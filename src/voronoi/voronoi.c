@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 
+#include "apply.h"
 #include "fit.h"
 #include "image/image.h"
 #include "logger/logger.h"
@@ -36,7 +37,9 @@ enum error_code voronoi_process_frame(const char *source_path,
         }
     }
 
-    err = image_fit(&image, *shared_data);
+    // err = image_fit(&image, *shared_data);
+    if (err == SUCCESS)
+        err = image_apply_voronoi(&image, *shared_data);
     if (err == SUCCESS)
         err = image_save(&image, destination_path);
 

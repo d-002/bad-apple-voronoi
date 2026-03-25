@@ -12,6 +12,7 @@
 #include "files/files.h"
 #include "logger/logger.h"
 #include "utils/errors.h"
+#include "utils/utils.h"
 
 static double start;
 
@@ -48,11 +49,9 @@ enum error_code check_args(int argc, char *argv[], char **source,
 
 void progress_bar(int i, int len)
 {
-    double spent = now() - start;
-    double eta = spent * ((double)len / (i + 1) - 1);
-    if (eta < 0)
-        eta = 0;
-    int min_s = spent / 60, sec_s = (int)(spent) % 60;
+    const double spent = now() - start;
+    const double eta = MAX2(spent * ((double)len / (i + 1) - 1), 0);
+    const int min_s = spent / 60, sec_s = (int)(spent) % 60;
     int min_e = eta / 60, sec_e = (int)(eta) % 60;
 
     static const int size = 50;
@@ -65,7 +64,7 @@ void progress_bar(int i, int len)
     }
     else
         prop = (double)i / len;
-    int count = round(prop * size);
+    const int count = round(prop * size);
 
     printf("Progress: [");
     for (int i = 0; i < count; i++)
@@ -91,10 +90,14 @@ int main(int argc, char *argv[])
 
     if (something_to_do(names, source, destination, len))
     {
-        start = now();
+        // share some data across frames, since most of them introduce little
+        // change keeping the old Voronoi cells can be advantageous
         struct voronoi_data *shared_data = NULL;
+
+        start = now();
         for (size_t i = 0; i < len; i++)
         {
+            printf("%s\n", names[i]); // TODO remove
             err = process_file(names[i], source, destination, &shared_data);
             progress_bar(i + 1, len);
         }

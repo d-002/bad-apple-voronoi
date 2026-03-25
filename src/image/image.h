@@ -17,7 +17,8 @@ struct image
 };
 
 // wrapper functions if I want to use Hilbert curves for better memory usage
-static inline enum color_class get_pixel(struct image *image, int x, int y)
+static inline enum color_class get_pixel(const struct image *image, const int x,
+                                         const int y)
 {
     size_t i = y * image->w + x;
     return image->pixels[i / 8] & (1 << (i % 8));

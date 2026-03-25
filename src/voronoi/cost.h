@@ -4,21 +4,22 @@
 #include "image/image.h"
 #include "shared_data.h"
 
-#define PRECISION 4
-#define SAMPLE_POS_RADIUS 1
+#define PRECISION 6
+#define SAMPLE_POS_RADIUS PRECISION
 #define SAMPLE_WEIGHT_RADIUS .02
-#define MIN_RADIUS .1
-#define MAX_RADIUS .1
+#define MIN_WEIGHT .1
+#define MAX_WEIGHT 3
 
 struct gradient
 {
-    int dx[N_CELLS];
-    int dy[N_CELLS];
-    int dw[N_CELLS];
+    double dx[N_CELLS];
+    double dy[N_CELLS];
+    double dw[N_CELLS];
 };
 
-double compute_cost(struct image *image, struct voronoi_data *shared_data);
-void compute_gradient(struct image *image, struct voronoi_data *shared_data,
-                      struct gradient *out);
+double compute_cost(const struct image *image,
+                    struct voronoi_data *shared_data);
+void compute_gradient(const struct image *image,
+                      struct voronoi_data *shared_data, struct gradient *out);
 
 #endif /* ! COST_H */

@@ -7,17 +7,17 @@
 #include "cost.h"
 #include "utils/utils.h"
 
-enum error_code image_fit(struct image *image, struct voronoi_data *shared_data)
+enum error_code image_fit(const struct image *image,
+                          struct voronoi_data *shared_data)
 {
-    double pos_learning_rate = LEARNING_RATE * MAX2(image->w, image->h);
-    double weight_learning_rate = LEARNING_RATE;
+    double pos_learning_rate = POS_LEARNING_RATE;
+    double weight_learning_rate = WEIGHT_LEARNING_RATE;
 
-    double prev_cost = -1;
     double cost;
     struct gradient gradient;
     bool done = false;
-    int iteration = 0;
-    while (true)
+    int iteration;
+    for (iteration = 0; iteration < MAX_ITERATIONS; iteration++)
     {
         compute_gradient(image, shared_data, &gradient);
 
@@ -27,7 +27,7 @@ enum error_code image_fit(struct image *image, struct voronoi_data *shared_data)
                 SQR(gradient.dx[i]) + SQR(gradient.dy[i]) + SQR(gradient.dw[i]);
         if (l)
         {
-            double mul = 1 / sqrt(l / (N_CELLS * 3));
+            const double mul = 1 / sqrt(l / (N_CELLS * 3));
             for (int i = 0; i < N_CELLS; i++)
             {
                 gradient.dx[i] *= mul;
@@ -49,27 +49,23 @@ enum error_code image_fit(struct image *image, struct voronoi_data *shared_data)
 
         cost = compute_cost(image, shared_data);
 
-        if (ABS(prev_cost - cost) < COST_STAGNATE_THRESHOLD
-            || cost > TARGET_FIT_PROPORTION)
+        if (cost > TARGET_FIT_PROPORTION)
         {
             done = true;
             break;
         }
-        if (++iteration >= MAX_ITERATIONS)
-            break;
 
-        if (iteration % 1 == 0 && VERBOSE) // TODO restore modulo
-            printf("Iteration %d/%d, accuracy score is %.3f%%\n", iteration,
+        if ((iteration + 1) % 1 == 0 && VERBOSE) // TODO restore modulo
+            printf("Iteration %d/%d, accuracy score is %.3f%%\n", iteration + 1,
                    MAX_ITERATIONS, (1 - cost) * 100);
     }
 
     if (VERBOSE)
     {
         if (done)
-            printf(
-                "Gradient descent done in %d iterations, final accuracy score "
-                "is %d%%.\n",
-                iteration, (int)round((1 - cost) * 100));
+            printf("Gradient descent done in %d/%d iterations, final accuracy "
+                   "score is %.3f%%.\n",
+                   iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
         else
             puts("Warning: gradient descent timed out.");
     }

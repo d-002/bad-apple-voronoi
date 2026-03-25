@@ -16,7 +16,7 @@ OBJ_MAIN=src/main.o
 OBJ=src/image/image.o \
 	src/files/files.o \
 	src/logger/logger.o \
-	src/voronoi/fit.o src/voronoi/cost.o src/voronoi/voronoi.o
+	src/voronoi/apply.o src/voronoi/fit.o src/voronoi/cost.o src/voronoi/voronoi.o
 
 .PHONY: all clean
 
