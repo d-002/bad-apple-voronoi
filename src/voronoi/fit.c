@@ -18,10 +18,12 @@ enum error_code image_fit(const struct image *image,
     double cost = compute_cost(image, shared_data);
     int consecutive_stagnate = 0;
 
-    struct gradient gradient;
-    bool done = false;
+    // try to skip the loop entirely
+    bool done = 1 - cost > TARGET_FIT_PROPORTION;
     int iteration;
-    for (iteration = 0; iteration < MAX_ITERATIONS; iteration++)
+
+    struct gradient gradient;
+    for (iteration = 0; iteration < MAX_ITERATIONS && !done; iteration++)
     {
         compute_gradient(image, shared_data, &gradient, cost);
 
@@ -84,18 +86,12 @@ enum error_code image_fit(const struct image *image,
         if (ABS(prev_cost - cost) <= COST_STAGNATE_THRESHOLD)
         {
             if (++consecutive_stagnate >= 5)
-            {
                 done = true;
-                break;
-            }
         }
         else
             consecutive_stagnate = 0;
         if (1 - cost > TARGET_FIT_PROPORTION)
-        {
             done = true;
-            break;
-        }
 
         prev_cost = cost;
 
