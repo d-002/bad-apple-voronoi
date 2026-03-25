@@ -44,28 +44,30 @@ def share_lock(l):
     global lock
     lock = l
 
-def progress_bar(n, shared_value):
+def progress_bar(i, n):
+    spent = time.time() - start
+    eta = spent * (n / (i + 1) - 1)
+    min_s, sec_s = divmod(round(spent), 60)
+    min_e, sec_e = divmod(round(eta), 60)
+
+    size = 50
+    if n == 0:
+        min_e = sec_e = 0
+        prop = 1
+    else:
+        prop = i / n
+    count = round(prop * size)
+    print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
+            f'{round(prop * 100):>3}%, spent: {min_s:02}:{sec_s:02}, ' \
+            f'eta: {min_e:02}:{sec_e:02}', end='\r')
+
+def progress_bar_loop(n, shared_value):
+    global start
     start = time.time()
 
     while not done:
+        progress_bar(shared_value.value, n)
         time.sleep(.5)
-
-        spent = time.time() - start
-        i = shared_value.value
-        eta = spent * (n / (i + 1) - 1)
-        min_s, sec_s = divmod(round(spent), 60)
-        min_e, sec_e = divmod(round(eta), 60)
-
-        size = 50
-        if n == 0:
-            min_e = sec_e = 0
-            prop = 1
-        else:
-            prop = i / n
-        count = round(prop * size)
-        print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
-                f'{round(prop * 100)}%, spent: {min_s:02}:{sec_s:02}, ' \
-                f'eta: {min_e:02}:{sec_e:02}', end='\r')
 
     print(f'\n{sys.argv[0]} is done.')
 
@@ -105,7 +107,7 @@ def main(read_func, transform_func, write_func):
                for i in range(n_workers)]
 
     done = False
-    Thread(target=progress_bar, args=(len(todo), shared_value)).start()
+    Thread(target=progress_bar_loop, args=(len(todo), shared_value)).start()
     pool = Pool(n_workers, initializer=share_lock, initargs=(lock,))
     for a, b in ranges:
         pool.apply_async(worker, (shared_value, source, destination, read_func,
@@ -113,6 +115,7 @@ def main(read_func, transform_func, write_func):
     try:
         pool.close()
         pool.join()
+        progress_bar(len(todo), len(todo))
     except Exception as e:
         print('Exception while waiting for workers:', file=sys.stderr)
         print(e, file=sys.stderr)

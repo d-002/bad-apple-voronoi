@@ -93,6 +93,6 @@ enum error_code image_save(const struct image *image, const char *path)
 
 write_err:
     close(fd);
-    logerror("Failed to write to file: '%S'", path);
+    logerror("Failed to write to file: '%s'", path);
     return IO_ERROR;
 }

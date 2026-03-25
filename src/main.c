@@ -71,8 +71,9 @@ void progress_bar(int i, int len)
         putchar('=');
     for (int i = count; i < size; i++)
         putchar(' ');
-    printf("] %d%%, spent: %02d:%02d, eta: %02d:%02d\r", (int)(prop * 100),
+    printf("] %3d%%, spent: %02d:%02d, eta: %02d:%02d\r", (int)(prop * 100),
            min_s, sec_s, min_e, sec_e);
+    fflush(stdout);
 }
 
 int main(int argc, char *argv[])
@@ -97,7 +98,6 @@ int main(int argc, char *argv[])
         start = now();
         for (size_t i = 0; i < len; i++)
         {
-            printf("%s\n", names[i]); // TODO remove
             err = process_file(names[i], source, destination, &shared_data);
             progress_bar(i + 1, len);
         }
