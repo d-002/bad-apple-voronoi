@@ -23,6 +23,7 @@ enum error_code image_fit(const struct image *image,
     int iteration;
 
     struct gradient gradient;
+    struct gradient moving_average = { 0 };
     for (iteration = 0; iteration < MAX_ITERATIONS && !done; iteration++)
     {
         compute_gradient(image, shared_data, &gradient, cost);
@@ -38,6 +39,21 @@ enum error_code image_fit(const struct image *image,
             }
         }
 
+        // Adam optimizer
+        for (int i = 0; i < N_CELLS; i++)
+        {
+            moving_average.dx[i] = MOMENTUM * moving_average.dx[i]
+                + (1 - MOMENTUM) * gradient.dx[i];
+            moving_average.dy[i] = MOMENTUM * moving_average.dy[i]
+                + (1 - MOMENTUM) * gradient.dy[i];
+            moving_average.dc[i] = MOMENTUM * moving_average.dc[i]
+                + (1 - MOMENTUM) * gradient.dc[i];
+#ifdef WEIGHTED
+            moving_average.dw[i] = MOMENTUM * moving_average.dw[i]
+                + (1 - MOMENTUM) * gradient.dw[i];
+#endif /* WEIGHTED */
+        }
+
 #ifdef WEIGHTED
         double min_weight = MAX_WEIGHT;
         double max_weight = MIN_WEIGHT;
@@ -45,9 +61,9 @@ enum error_code image_fit(const struct image *image,
         for (int i = 0; i < N_CELLS; i++)
         {
             struct cell *cell = shared_data->cells + i;
-            cell->x -= gradient.dx[i] * pos_learning_rate;
-            cell->y -= gradient.dy[i] * pos_learning_rate;
-            cell->training_color -= gradient.dc[i] * color_learning_rate;
+            cell->x -= moving_average.dx[i] * pos_learning_rate;
+            cell->y -= moving_average.dy[i] * pos_learning_rate;
+            cell->training_color -= moving_average.dc[i] * color_learning_rate;
 
             // make sure the cells stay in the bounds
             cell->x = MIN2(MAX2(0, cell->x), image->w - 1);
@@ -56,7 +72,7 @@ enum error_code image_fit(const struct image *image,
             cell->color = cell->training_color < .5 ? BLACK : WHITE;
 
 #ifdef WEIGHTED
-            cell->weight -= gradient.dw[i] * weight_learning_rate;
+            cell->weight -= moving_average.dw[i] * weight_learning_rate;
             min_weight = MIN2(min_weight, cell->weight);
             max_weight = MAX2(max_weight, cell->weight);
 #endif /* WEIGHTED */

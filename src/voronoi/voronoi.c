@@ -44,13 +44,14 @@ enum error_code voronoi_process_frame(const char *source_path,
         }
     }
 
-    // if (frame_count++ % 4 == 0)
+    // if (frame_count % 4 == 0)
     err = image_fit(&image, *shared_data);
     if (frame_count % 2)
         if (err == SUCCESS)
             err = image_apply_voronoi(&image, *shared_data);
     if (err == SUCCESS)
         err = image_save(&image, destination_path);
+    frame_count++;
 
     free(image.pixels);
     return err;
