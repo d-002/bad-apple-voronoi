@@ -35,65 +35,44 @@ double compute_cost(const struct image *image, struct voronoi_data *shared_data)
 }
 
 void compute_gradient(const struct image *image,
-                      struct voronoi_data *shared_data, struct gradient *out)
+                      struct voronoi_data *shared_data, struct gradient *out,
+                      double cost1)
 {
     for (int i = 0; i < N_CELLS; i++)
     {
         struct cell *cell = shared_data->cells + i;
         const double x = cell->x, y = cell->y;
         const double w = cell->weight, c = cell->training_color;
-        const double x1 = MAX2(0, x - SAMPLE_POS_RADIUS),
-                     y1 = MAX2(0, y - SAMPLE_POS_RADIUS);
-        const double w1 = MAX2(MIN_WEIGHT, w - SAMPLE_WEIGHT_RADIUS),
-                     c1 = MAX2(0, c - SAMPLE_COLOR_RADIUS);
-        const double x2 = MIN2(image->w - 1, x + SAMPLE_POS_RADIUS),
-                     y2 = MIN2(image->h, y + SAMPLE_POS_RADIUS);
-        const double w2 = MIN2(MAX_WEIGHT, w + SAMPLE_WEIGHT_RADIUS),
-                     c2 = MIN2(1, c + SAMPLE_COLOR_RADIUS);
 
-        if (x1 == x2)
-            out->dx[i] = 0;
-        else
-        {
-            cell->x = x1;
-            const double cost1 = compute_cost(image, shared_data);
-            cell->x = x2;
-            const double cost2 = compute_cost(image, shared_data);
-            cell->x = x;
-            out->dx[i] = (cost2 - cost1) / (x2 - x1);
-        }
-        if (y1 == y2)
-            out->dy[i] = 0;
-        else
-        {
-            cell->y = y1;
-            const double cost1 = compute_cost(image, shared_data);
-            cell->y = y2;
-            const double cost2 = compute_cost(image, shared_data);
-            cell->y = y;
-            out->dy[i] = (cost2 - cost1) / (y2 - y1);
-        }
-        if (w1 == w2)
-            out->dw[i] = 0;
-        else
-        {
-            cell->weight = w1;
-            const double cost1 = compute_cost(image, shared_data);
-            cell->weight = w2;
-            const double cost2 = compute_cost(image, shared_data);
-            cell->weight = w;
-            out->dw[i] = (cost2 - cost1) / (w2 - w1);
-        }
-        if (c1 == c2)
-            out->dc[i] = 0;
-        else
-        {
-            cell->training_color = c1;
-            const double cost1 = compute_cost(image, shared_data);
-            cell->training_color = c2;
-            const double cost2 = compute_cost(image, shared_data);
-            cell->training_color = c;
-            out->dc[i] = (cost2 - cost1) / (c2 - c1);
-        }
+        // find points in bounds to avoid using e.g. x2-x conditions
+        const double x2 = x < image->w / 2. ? x + SAMPLE_POS_RADIUS
+                                            : x - SAMPLE_POS_RADIUS,
+                     y2 = y < image->h / 2. ? y + SAMPLE_POS_RADIUS
+                                            : y - SAMPLE_POS_RADIUS;
+        const double w2 = w < (MIN_WEIGHT + MAX_WEIGHT) / 2
+            ? w + SAMPLE_WEIGHT_RADIUS
+            : w - SAMPLE_WEIGHT_RADIUS,
+                     c2 = c < .5 ? c + SAMPLE_COLOR_RADIUS
+                                 : c - SAMPLE_COLOR_RADIUS;
+
+        cell->x = x2;
+        double cost2 = compute_cost(image, shared_data);
+        cell->x = x;
+        out->dx[i] = (cost2 - cost1) / (x2 - x);
+
+        cell->y = y2;
+        cost2 = compute_cost(image, shared_data);
+        cell->y = y;
+        out->dy[i] = (cost2 - cost1) / (y2 - y);
+
+        cell->weight = w2;
+        cost2 = compute_cost(image, shared_data);
+        cell->weight = w;
+        out->dw[i] = (cost2 - cost1) / (w2 - w);
+
+        cell->training_color = c2;
+        cost2 = compute_cost(image, shared_data);
+        cell->training_color = c;
+        out->dc[i] = (cost2 - cost1) / (c2 - c);
     }
 }

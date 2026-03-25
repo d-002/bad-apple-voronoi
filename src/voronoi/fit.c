@@ -15,7 +15,7 @@ enum error_code image_fit(const struct image *image,
     double color_learning_rate = COLOR_LEARNING_RATE;
 
     double prev_cost = -1;
-    double cost;
+    double cost = compute_cost(image, shared_data);
     int consecutive_stagnate = 0;
 
     struct gradient gradient;
@@ -23,7 +23,7 @@ enum error_code image_fit(const struct image *image,
     int iteration;
     for (iteration = 0; iteration < MAX_ITERATIONS; iteration++)
     {
-        compute_gradient(image, shared_data, &gradient);
+        compute_gradient(image, shared_data, &gradient, cost);
 
         for (int i = 0; i < N_CELLS; i++)
         {

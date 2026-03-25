@@ -2,7 +2,7 @@
 #define CELL_H
 
 // number of cells in a given frame
-#define N_CELLS 20
+#define N_CELLS 30
 
 enum color_class
 {

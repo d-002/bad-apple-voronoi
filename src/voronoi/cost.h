@@ -4,7 +4,7 @@
 #include "image/image.h"
 #include "shared_data.h"
 
-#define PRECISION 10
+#define PRECISION 4
 #define SAMPLE_POS_RADIUS PRECISION
 #define SAMPLE_WEIGHT_RADIUS .01
 #define SAMPLE_COLOR_RADIUS .01
@@ -22,6 +22,7 @@ struct gradient
 double compute_cost(const struct image *image,
                     struct voronoi_data *shared_data);
 void compute_gradient(const struct image *image,
-                      struct voronoi_data *shared_data, struct gradient *out);
+                      struct voronoi_data *shared_data, struct gradient *out,
+                      double cost1);
 
 #endif /* ! COST_H */

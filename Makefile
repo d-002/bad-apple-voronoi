@@ -46,7 +46,7 @@ convert_images2:
 
 group_frames:
 	@echo -e "\n##### 5/5 -- FRAMES AND AUDIO GROUPING"
-	@ffmpeg -framerate 30 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
+	@ffmpeg -framerate 60 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
 		-pix_fmt yuv420p $(VIDEO_OUT) -y -hide_banner -loglevel warning \
 		&& ffmpeg -i $(VIDEO_OUT) -i $(EXTRACTED_AUDIO) -c:v copy -c:a aac \
 		-strict experimental temp_video.mp4 -y -hide_banner -loglevel warning \
