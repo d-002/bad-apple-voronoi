@@ -5,10 +5,10 @@
 #include "shared_data.h"
 
 #define PRECISION 4
-#define SAMPLE_POS_RADIUS PRECISION
-#define SAMPLE_WEIGHT_RADIUS .01
+#define SAMPLE_POS_RADIUS 8
+#define SAMPLE_WEIGHT_RADIUS .05
 #define SAMPLE_COLOR_RADIUS .01
-#define MIN_WEIGHT .01
+#define MIN_WEIGHT 1
 #define MAX_WEIGHT 3
 
 struct gradient

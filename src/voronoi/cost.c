@@ -49,7 +49,7 @@ void compute_gradient(const struct image *image,
                                             : x - SAMPLE_POS_RADIUS,
                      y2 = y < image->h / 2. ? y + SAMPLE_POS_RADIUS
                                             : y - SAMPLE_POS_RADIUS;
-        const double w2 = w < (MIN_WEIGHT + MAX_WEIGHT) / 2
+        const double w2 = w < (MIN_WEIGHT + MAX_WEIGHT) / 2.
             ? w + SAMPLE_WEIGHT_RADIUS
             : w - SAMPLE_WEIGHT_RADIUS,
                      c2 = c < .5 ? c + SAMPLE_COLOR_RADIUS

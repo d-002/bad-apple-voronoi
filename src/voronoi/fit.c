@@ -27,15 +27,12 @@ enum error_code image_fit(const struct image *image,
 
         for (int i = 0; i < N_CELLS; i++)
         {
-            double l = SQR(gradient.dx[i]) + SQR(gradient.dy[i])
-                + SQR(gradient.dw[i]) + SQR(gradient.dc[i]);
-            if (l)
+            double pos_l = SQR(gradient.dx[i]) + SQR(gradient.dy[i]);
+            if (pos_l > 0)
             {
-                const double mul = 1 / sqrt(l);
+                const double mul = 1 / sqrt(pos_l);
                 gradient.dx[i] *= mul;
                 gradient.dy[i] *= mul;
-                gradient.dw[i] *= mul;
-                gradient.dc[i] *= mul;
             }
         }
 
@@ -47,14 +44,13 @@ enum error_code image_fit(const struct image *image,
             cell->x -= gradient.dx[i] * pos_learning_rate;
             cell->y -= gradient.dy[i] * pos_learning_rate;
             cell->weight -= gradient.dw[i] * weight_learning_rate;
-            cell->weight = 1; // TODO restore weights
             cell->training_color -= gradient.dc[i] * color_learning_rate;
 
             // make sure the cells stay in the bounds
             cell->x = MIN2(MAX2(0, cell->x), image->w - 1);
             cell->y = MIN2(MAX2(0, cell->y), image->h - 1);
             min_weight = MIN2(min_weight, cell->weight);
-            max_weight = MAX2(min_weight, cell->weight);
+            max_weight = MAX2(max_weight, cell->weight);
             cell->training_color = MIN2(MAX2(0, cell->training_color), 1);
             cell->color = cell->training_color < .5 ? BLACK : WHITE;
         }

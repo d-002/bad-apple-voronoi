@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "apply.h"
+#include "cost.h"
 #include "fit.h"
 #include "image/image.h"
 #include "logger/logger.h"
@@ -28,7 +29,7 @@ enum error_code voronoi_process_frame(const char *source_path,
             struct cell *cell = &(*shared_data)->cells[i];
             cell->x = (unsigned)rand() % image.w;
             cell->y = (unsigned)rand() % image.h;
-            cell->weight = 1;
+            cell->weight = (MIN_WEIGHT + MAX_WEIGHT) / 2.;
             cell->color = BLACK; // for now
             cell->training_color = .5; // TODO (double)rand() / RAND_MAX;
         }
@@ -41,7 +42,7 @@ enum error_code voronoi_process_frame(const char *source_path,
         }
     }
 
-    if (frame_count++ % 30 == 0)
+    if (frame_count++ % 50 == 0)
         err = image_fit(&image, *shared_data);
     if (frame_count % 2)
         if (err == SUCCESS)
