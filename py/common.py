@@ -94,7 +94,7 @@ def main(read_func, transform_func, write_func):
     shared_value = manager.Value('i', 0)
 
     todo = list(todo)
-    n_workers = max(2, min(os.process_cpu_count(), len(todo)))
+    n_workers = min(os.process_cpu_count(), len(todo))
     if not n_workers:
         print(f'{sys.argv[0]}: nothing to do.')
         return
@@ -102,7 +102,7 @@ def main(read_func, transform_func, write_func):
     print(f'Found {len(todo)} files to convert, splitting in '\
           f'{n_workers} workers.')
 
-    increment = len(todo) / (n_workers - 1)
+    increment = len(todo) if n_workers < 2 else len(todo) / (n_workers - 1)
     ranges = [(int(i * increment), min(int((i + 1) * increment), len(todo)))
                for i in range(n_workers)]
 

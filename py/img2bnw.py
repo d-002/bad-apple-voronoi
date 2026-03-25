@@ -3,8 +3,23 @@ from PIL import Image
 
 def read_func(path):
     image = Image.open(path).convert('RGB')
-    w, h = image.size
+    old_w, old_h = image.size
     pixels = image.get_flattened_data()
+
+    # optionally crop the video, here I use a Bad apple video in 4:3 but stored
+    # as 16:9
+    old_ratio, new_ratio = old_w / old_h, 4 / 3
+    if new_ratio < old_ratio:
+        w = int(old_w * new_ratio / old_ratio)
+        h = old_h
+        dx = (old_w - w) // 2
+        dy = 0
+    else:
+        w = old_w
+        h = int(old_h * new_ratio / old_ratio)
+        dx = 0
+        dy = (old_h - h) // 2
+
     buf = bytearray(5 + w * h // 8)
     buf[0] = w >> 8
     buf[1] = w & 0xff
@@ -15,12 +30,15 @@ def read_func(path):
     while i < w * h:
         n = 0
         for _ in range(8):
-            i += 1
+            y, x = divmod(i, w)
             if i < w * h:
-                value = int(pixels[i][0] >= 128)
+                i_ = (y + dy) * old_w + (x + dx)
+                value = int(pixels[i_][0] >= 128)
             else:
                 value = 0
             n = (n << 1) + value
+
+            i += 1
 
         buf[i // 8 + 4] = n
 

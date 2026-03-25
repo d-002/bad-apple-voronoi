@@ -10,3 +10,4 @@ Improvement steps:
 - Fix all TODOs
 - Compute bounding boxes for cost evaluation? Worth it for weighted diagrams?
 - ADAM
+- Paralellize computing parts of the gradient / use the GPU for cost computation

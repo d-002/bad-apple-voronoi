@@ -44,7 +44,7 @@ enum error_code voronoi_process_frame(const char *source_path,
         }
     }
 
-    if (frame_count++ % 50 == 0)
+    if (frame_count++ % 4 == 0)
         err = image_fit(&image, *shared_data);
     if (frame_count % 2)
         if (err == SUCCESS)
