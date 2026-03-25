@@ -13,6 +13,7 @@ enum error_code image_fit(const struct image *image,
     double pos_learning_rate = POS_LEARNING_RATE;
     double weight_learning_rate = WEIGHT_LEARNING_RATE;
 
+    double prev_cost = -1;
     double cost;
     struct gradient gradient;
     bool done = false;
@@ -49,11 +50,14 @@ enum error_code image_fit(const struct image *image,
 
         cost = compute_cost(image, shared_data);
 
-        if (cost > TARGET_FIT_PROPORTION)
+        if (ABS(prev_cost - cost) < COST_STAGNATE_THRESHOLD
+            || cost > TARGET_FIT_PROPORTION)
         {
             done = true;
             break;
         }
+
+        prev_cost = cost;
 
         if ((iteration + 1) % 1 == 0 && VERBOSE) // TODO restore modulo
             printf("Iteration %d/%d, accuracy score is %.3f%%\n", iteration + 1,

@@ -12,6 +12,8 @@
 #define LEARNING_RATE_DECAY .995
 // proportion of pixels that should be correct to end fitting process
 #define TARGET_FIT_PROPORTION .6 // TODO increase
+// threshold to stop early if the target cost was not reached
+#define COST_STAGNATE_THRESHOLD .001
 #define MAX_ITERATIONS 300
 #define VERBOSE true
 
