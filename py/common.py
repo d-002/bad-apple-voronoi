@@ -102,8 +102,8 @@ def main(read_func, transform_func, write_func):
     print(f'Found {len(todo)} files to convert, splitting in '\
           f'{n_workers} workers.')
 
-    increment = int(len(todo) / (n_workers - 1))
-    ranges = [(i * increment, min((i + 1) * increment, len(todo)))
+    increment = len(todo) / (n_workers - 1)
+    ranges = [(int(i * increment), min(int((i + 1) * increment), len(todo)))
                for i in range(n_workers)]
 
     done = False

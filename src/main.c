@@ -91,6 +91,8 @@ int main(int argc, char *argv[])
 
     if (something_to_do(names, source, destination, len))
     {
+        printf("Converting all %ld files found.\n", len);
+
         // share some data across frames, since most of them introduce little
         // change keeping the old Voronoi cells can be advantageous
         struct voronoi_data *shared_data = NULL;

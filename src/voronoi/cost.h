@@ -7,7 +7,7 @@
 #define PRECISION 6
 #define SAMPLE_POS_RADIUS PRECISION
 #define SAMPLE_WEIGHT_RADIUS .02
-#define MIN_WEIGHT .1
+#define MIN_WEIGHT .01
 #define MAX_WEIGHT 3
 
 struct gradient

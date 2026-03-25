@@ -65,7 +65,7 @@ read_err:
 
 enum error_code image_save(const struct image *image, const char *path)
 {
-    int fd = open(path, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (fd < 0)
     {
         logerror("Failed to open file for writing: '%s'", path);

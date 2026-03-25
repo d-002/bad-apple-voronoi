@@ -6,10 +6,11 @@
 
 double compute_cost(const struct image *image, struct voronoi_data *shared_data)
 {
+    // TODO only check around the edited cell if applicable
     size_t total_cost = 0;
 
-    for (int x = 0; x < image->w; x += PRECISION)
-        for (int y = 0; y < image->h; y += PRECISION)
+    for (int y = 0; y < image->h; y += PRECISION)
+        for (int x = 0; x < image->w; x += PRECISION)
         {
             enum color_class color1 = get_pixel(image, x, y);
 

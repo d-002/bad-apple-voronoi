@@ -7,7 +7,7 @@ VIDEO_IN=video_in.mp4
 VIDEO_OUT=video_out.mp4
 
 PYTHON:=python3
-CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic -O3
+CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic -O2
 CPPFLAGS=-Isrc
 LDLIBS=-lm
 
@@ -25,25 +25,28 @@ OBJ=src/image/image.o \
 all: extract_frames convert_images1 fit_voronoi convert_images2 group_frames
 
 extract_frames:
-	[ $(IMAGES_INPUT)/frame0001.png -ot $(VIDEO_IN) ] && ffmpeg -i $(VIDEO_IN) \
-		$(IMAGES_INPUT)/frame%04d.png -y -hide_banner -loglevel warning \
+	@echo -e "\n##### 1/5 -- FRAMES AND VIDEO EXTRACTION"
+	@[ $(IMAGES_INPUT)/frame0001.png -ot $(VIDEO_IN) ] && ffmpeg -i \
+		$(VIDEO_IN) $(IMAGES_INPUT)/frame%04d.png -y -hide_banner \
+		-loglevel warning && ffmpeg -i $(VIDEO_IN) -vn -acodec copy \
+		$(EXTRACTED_AUDIO) -y -hide_banner -loglevel warning \
 		|| echo "Skipping frames extraction"
-	# also extract audio
-	ffmpeg -i $(VIDEO_IN) -vn -acodec copy $(EXTRACTED_AUDIO) -y -hide_banner \
-		-loglevel warning
 
 convert_images1:
-	$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
+	@echo -e "\n##### 2/5 -- IMAGES CONVERSION 1"
+	@$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
 
 fit_voronoi: $(TARGET)
-	./$(TARGET) $(IMAGES_BNW) $(IMAGES_VORONOI)
+	@echo -e "\n##### 3/5 -- VORONOI FITTING"
+	@./$(TARGET) $(IMAGES_BNW) $(IMAGES_VORONOI)
 
 convert_images2:
-	$(PYTHON) py/bnw2img.py $(IMAGES_VORONOI) $(IMAGES_OUTPUT)
+	@echo -e "\n##### 4/5 -- IMAGES CONVERSION 2"
+	@$(PYTHON) py/bnw2img.py $(IMAGES_VORONOI) $(IMAGES_OUTPUT)
 
 group_frames:
-	[ $(IMAGES_OUTPUT)/frame0001.png -nt $(VIDEO_OUT) ] \
-		&& ffmpeg -framerate 60 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
+	@echo -e "\n##### 5/5 -- FRAMES AND AUDIO GROUPING"
+	@ffmpeg -framerate 30 -i $(IMAGES_OUTPUT)/frame%04d.png -c:v libx264 \
 		-pix_fmt yuv420p $(VIDEO_OUT) -y -hide_banner -loglevel warning \
 		&& ffmpeg -i $(VIDEO_OUT) -i $(EXTRACTED_AUDIO) -c:v copy -c:a aac \
 		-strict experimental temp_video.mp4 -y -hide_banner -loglevel warning \
@@ -61,7 +64,7 @@ dev: all
 clean:
 	$(RM) $(TARGET) $(OBJ_MAIN) $(OBJ)
 
-clean-cache: clean
+clean-full: clean
 	$(RM) $(IMAGES_INPUT)/* $(IMAGES_BNW)/* $(IMAGES_VORONOI)/* \
 		$(IMAGES_OUTPUT)/* $(OUTPUT)
 	$(RM) $(VIDEO_OUT) $(EXTRACTED_AUDIO)

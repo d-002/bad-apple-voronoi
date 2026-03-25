@@ -20,8 +20,8 @@ struct image
 static inline enum color_class get_pixel(const struct image *image, const int x,
                                          const int y)
 {
-    size_t i = y * image->w + x;
-    return image->pixels[i / 8] & (1 << (i % 8)) ? WHITE : BLACK;
+    size_t i = y * image->h + x;
+    return (image->pixels[i / 8] & (1 << (7 - i % 8))) == 0 ? BLACK : WHITE;
 }
 
 static inline void set_pixel(struct image *image, const int x, const int y,
@@ -29,9 +29,9 @@ static inline void set_pixel(struct image *image, const int x, const int y,
 {
     size_t i = y * image->w + x;
     if (value)
-        image->pixels[i / 8] |= 1 << (i % 8);
+        image->pixels[i / 8] |= 1 << (7 - i % 8);
     else
-        image->pixels[i / 8] &= ~(1 << (i % 8));
+        image->pixels[i / 8] &= ~(1 << (7 - i % 8));
 }
 
 enum error_code image_load(const char *path, struct image *image);

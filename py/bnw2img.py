@@ -19,7 +19,7 @@ def transform_func(data):
 
         for j in range(8):
             y, x = divmod(i * 8 + j, w)
-            col = 255 if n & (1 << 7 - j) else 0
+            col = 255 if n & (1 << (7 - j)) else 0
             pixels[y][x] = [col, col, col]
 
         i += 1

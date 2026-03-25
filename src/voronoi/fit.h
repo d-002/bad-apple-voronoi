@@ -7,14 +7,14 @@
 
 // base learning rates, different for pos and weights because of the scale
 #define POS_LEARNING_RATE 2
-#define WEIGHT_LEARNING_RATE .02
+#define WEIGHT_LEARNING_RATE .01
 // learning rate decay each iteration
 #define LEARNING_RATE_DECAY .995
 // proportion of pixels that should be correct to end fitting process
-#define TARGET_FIT_PROPORTION .6 // TODO increase
+#define TARGET_FIT_PROPORTION .55 // TODO raise
 // threshold to stop early if the target cost was not reached
-#define COST_STAGNATE_THRESHOLD .001
-#define MAX_ITERATIONS 300
+#define COST_STAGNATE_THRESHOLD 0
+#define MAX_ITERATIONS 200
 #define VERBOSE true
 
 enum error_code image_fit(const struct image *image,

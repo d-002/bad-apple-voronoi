@@ -8,6 +8,9 @@
 #include "logger/logger.h"
 #include "utils/errors.h"
 
+// TODO remove
+static int frame_count = 0;
+
 enum error_code voronoi_process_frame(const char *source_path,
                                       const char *destination_path,
                                       struct voronoi_data **shared_data)
@@ -37,9 +40,12 @@ enum error_code voronoi_process_frame(const char *source_path,
         }
     }
 
-    err = image_fit(&image, *shared_data);
-    if (err == SUCCESS)
-        err = image_apply_voronoi(&image, *shared_data);
+    if (++frame_count < 30)
+    {
+        err = image_fit(&image, *shared_data);
+        if (err == SUCCESS)
+            err = image_apply_voronoi(&image, *shared_data);
+    }
     if (err == SUCCESS)
         err = image_save(&image, destination_path);
 

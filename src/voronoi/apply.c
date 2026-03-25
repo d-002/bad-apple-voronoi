@@ -7,8 +7,8 @@
 enum error_code image_apply_voronoi(struct image *image,
                                     const struct voronoi_data *shared_data)
 {
-    for (int x = 0; x < image->w; x++)
-        for (int y = 0; y < image->h; y++)
+    for (int y = 0; y < image->h; y++)
+        for (int x = 0; x < image->w; x++)
         {
             double closest_dist = -1;
             enum color_class color = false;
