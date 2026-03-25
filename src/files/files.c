@@ -81,6 +81,7 @@ enum error_code add_files_sorted(char *path, char *names[MAX_NUM_FILES],
 bool something_to_do(char *names[MAX_NUM_FILES], char *source,
                      char *destination, size_t len)
 {
+    return true; // TODO remove
     for (size_t i = 0; i < len; i++)
     {
         char *source_path = join_path(source, names[i]);

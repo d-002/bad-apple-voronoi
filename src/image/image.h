@@ -1,10 +1,12 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 #include "utils/errors.h"
+#include "voronoi/cell.h"
 
 struct image
 {
@@ -15,13 +17,14 @@ struct image
 };
 
 // wrapper functions if I want to use Hilbert curves for better memory usage
-static inline int get_pixel(struct image *image, int x, int y)
+static inline enum color_class get_pixel(struct image *image, int x, int y)
 {
     size_t i = y * image->w + x;
     return image->pixels[i / 8] & (1 << (i % 8));
 }
 
-static inline void set_pixel(struct image *image, int x, int y, int value)
+static inline void set_pixel(struct image *image, int x, int y,
+                             enum color_class value)
 {
     size_t i = y * image->w + x;
     if (value)

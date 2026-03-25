@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "logger/logger.h"
+#include "utils/utils.h"
 
 #define BUF_SIZE 64
 
@@ -79,7 +80,7 @@ enum error_code image_save(const struct image *image, const char *path)
     size_t i = 0;
     while (i < size)
     {
-        size_t remaining = size - i > BUF_SIZE ? BUF_SIZE : size - i;
+        size_t remaining = MIN2(size - i, BUF_SIZE);
         ssize_t count = write(fd, image->pixels + i, remaining);
         if (count < 0)
             goto write_err;

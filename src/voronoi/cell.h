@@ -1,9 +1,7 @@
 #ifndef CELL_H
 #define CELL_H
 
-#define N_CELLS 20
-
-enum class
+enum color_class
 {
     BLACK,
     WHITE,
@@ -15,7 +13,7 @@ struct cell
     int y;
     double weight;
 
-    enum class class;
+    enum color_class color;
 };
 
 #endif /* ! CELL_H */

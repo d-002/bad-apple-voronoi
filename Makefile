@@ -7,15 +7,16 @@ VIDEO_IN=video_in.mp4
 VIDEO_OUT=video_out.mp4
 
 PYTHON:=python3
-CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic -O1
+CFLAGS=-Wall -Wextra -Werror -Wvla -std=c99 -pedantic -O3
 CPPFLAGS=-Isrc
+LDLIBS=-lm
 
 TARGET=voronoi_fitter
 OBJ_MAIN=src/main.o
 OBJ=src/image/image.o \
 	src/files/files.o \
 	src/logger/logger.o \
-	src/voronoi/voronoi.o
+	src/voronoi/fit.o src/voronoi/cost.o src/voronoi/voronoi.o
 
 .PHONY: all clean
 
