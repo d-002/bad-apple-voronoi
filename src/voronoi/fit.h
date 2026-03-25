@@ -6,9 +6,9 @@
 #include "utils/errors.h"
 
 // base learning rates, different for pos and weights because of the scale
-#define POS_LEARNING_RATE .5
+#define POS_LEARNING_RATE 1
 #define WEIGHT_LEARNING_RATE .01
-#define COLOR_LEARNING_RATE .3
+#define COLOR_LEARNING_RATE .5
 // learning rate decay each iteration
 #define LEARNING_RATE_DECAY .995
 // proportion of pixels that should be correct to end fitting process

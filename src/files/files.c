@@ -82,7 +82,6 @@ enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
 bool something_to_do(char *const names[MAX_NUM_FILES], const char *source,
                      const char *destination, size_t len)
 {
-    return true; // TODO remove
     for (size_t i = 0; i < len; i++)
     {
         char *source_path = join_path(source, names[i]);

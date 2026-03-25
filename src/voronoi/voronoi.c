@@ -33,7 +33,7 @@ enum error_code voronoi_process_frame(const char *source_path,
             cell->weight = (MIN_WEIGHT + MAX_WEIGHT) / 2.;
 #endif /* WEIGHTED */
             cell->color = BLACK; // for now
-            cell->training_color = .5; // TODO (double)rand() / RAND_MAX;
+            cell->training_color = (double)rand() / RAND_MAX;
         }
 
         if (*shared_data == NULL)
