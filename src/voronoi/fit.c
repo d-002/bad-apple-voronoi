@@ -36,25 +36,31 @@ enum error_code image_fit(const struct image *image,
             }
         }
 
+#ifdef WEIGHTED
         double min_weight = MAX_WEIGHT;
         double max_weight = MIN_WEIGHT;
+#endif /* WEIGHTED */
         for (int i = 0; i < N_CELLS; i++)
         {
             struct cell *cell = shared_data->cells + i;
             cell->x -= gradient.dx[i] * pos_learning_rate;
             cell->y -= gradient.dy[i] * pos_learning_rate;
-            cell->weight -= gradient.dw[i] * weight_learning_rate;
             cell->training_color -= gradient.dc[i] * color_learning_rate;
 
             // make sure the cells stay in the bounds
             cell->x = MIN2(MAX2(0, cell->x), image->w - 1);
             cell->y = MIN2(MAX2(0, cell->y), image->h - 1);
-            min_weight = MIN2(min_weight, cell->weight);
-            max_weight = MAX2(max_weight, cell->weight);
             cell->training_color = MIN2(MAX2(0, cell->training_color), 1);
             cell->color = cell->training_color < .5 ? BLACK : WHITE;
+
+#ifdef WEIGHTED
+            cell->weight -= gradient.dw[i] * weight_learning_rate;
+            min_weight = MIN2(min_weight, cell->weight);
+            max_weight = MAX2(max_weight, cell->weight);
+#endif /* WEIGHTED */
         }
 
+#ifdef WEIGHTED
         // normalize weights
         if (min_weight < max_weight)
         {
@@ -67,6 +73,7 @@ enum error_code image_fit(const struct image *image,
                     + MIN_WEIGHT;
             }
         }
+#endif /* WEIGHTED */
 
         pos_learning_rate *= LEARNING_RATE_DECAY;
         weight_learning_rate *= LEARNING_RATE_DECAY;

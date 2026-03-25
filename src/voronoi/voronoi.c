@@ -29,7 +29,9 @@ enum error_code voronoi_process_frame(const char *source_path,
             struct cell *cell = &(*shared_data)->cells[i];
             cell->x = (unsigned)rand() % image.w;
             cell->y = (unsigned)rand() % image.h;
+#ifdef WEIGHTED
             cell->weight = (MIN_WEIGHT + MAX_WEIGHT) / 2.;
+#endif /* WEIGHTED */
             cell->color = BLACK; // for now
             cell->training_color = .5; // TODO (double)rand() / RAND_MAX;
         }
