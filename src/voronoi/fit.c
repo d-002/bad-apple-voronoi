@@ -12,9 +12,12 @@ enum error_code image_fit(const struct image *image,
 {
     double pos_learning_rate = POS_LEARNING_RATE;
     double weight_learning_rate = WEIGHT_LEARNING_RATE;
+    double color_learning_rate = COLOR_LEARNING_RATE;
 
     double prev_cost = -1;
     double cost;
+    int consecutive_stagnate = 0;
+
     struct gradient gradient;
     bool done = false;
     int iteration;
@@ -22,18 +25,17 @@ enum error_code image_fit(const struct image *image,
     {
         compute_gradient(image, shared_data, &gradient);
 
-        double l = 0;
         for (int i = 0; i < N_CELLS; i++)
-            l +=
-                SQR(gradient.dx[i]) + SQR(gradient.dy[i]) + SQR(gradient.dw[i]);
-        if (l)
         {
-            const double mul = 1 / sqrt(l / (N_CELLS * 3));
-            for (int i = 0; i < N_CELLS; i++)
+            double l = SQR(gradient.dx[i]) + SQR(gradient.dy[i])
+                + SQR(gradient.dw[i]) + SQR(gradient.dc[i]);
+            if (l)
             {
+                const double mul = 1 / sqrt(l);
                 gradient.dx[i] *= mul;
                 gradient.dy[i] *= mul;
                 gradient.dw[i] *= mul;
+                gradient.dc[i] *= mul;
             }
         }
 
@@ -46,13 +48,15 @@ enum error_code image_fit(const struct image *image,
             cell->y -= gradient.dy[i] * pos_learning_rate;
             cell->weight -= gradient.dw[i] * weight_learning_rate;
             cell->weight = 1; // TODO restore weights
-            // TODO automatically change the cells colors?
+            cell->training_color -= gradient.dc[i] * color_learning_rate;
 
             // make sure the cells stay in the bounds
-            cell->x = MIN2(MAX2(cell->x, 0), image->w - 1);
-            cell->y = MIN2(MAX2(cell->y, 0), image->h - 1);
+            cell->x = MIN2(MAX2(0, cell->x), image->w - 1);
+            cell->y = MIN2(MAX2(0, cell->y), image->h - 1);
             min_weight = MIN2(min_weight, cell->weight);
             max_weight = MAX2(min_weight, cell->weight);
+            cell->training_color = MIN2(MAX2(0, cell->training_color), 1);
+            cell->color = cell->training_color < .5 ? BLACK : WHITE;
         }
 
         // normalize weights
@@ -70,12 +74,19 @@ enum error_code image_fit(const struct image *image,
 
         pos_learning_rate *= LEARNING_RATE_DECAY;
         weight_learning_rate *= LEARNING_RATE_DECAY;
+        color_learning_rate *= LEARNING_RATE_DECAY;
 
         cost = compute_cost(image, shared_data);
 
-        // TODO: do something with this stagnate threshold
-        if ((ABS(prev_cost - cost) <= COST_STAGNATE_THRESHOLD && false)
-            || (1 - cost) > TARGET_FIT_PROPORTION)
+        if (ABS(prev_cost - cost) <= COST_STAGNATE_THRESHOLD)
+        {
+            if (++consecutive_stagnate >= 10)
+            {
+                done = true;
+                break;
+            }
+        }
+        if (1 - cost > TARGET_FIT_PROPORTION)
         {
             done = true;
             break;

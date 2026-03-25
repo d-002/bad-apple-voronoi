@@ -4,9 +4,10 @@
 #include "image/image.h"
 #include "shared_data.h"
 
-#define PRECISION 6
+#define PRECISION 10
 #define SAMPLE_POS_RADIUS PRECISION
-#define SAMPLE_WEIGHT_RADIUS .02
+#define SAMPLE_WEIGHT_RADIUS .01
+#define SAMPLE_COLOR_RADIUS .01
 #define MIN_WEIGHT .01
 #define MAX_WEIGHT 3
 
@@ -15,6 +16,7 @@ struct gradient
     double dx[N_CELLS];
     double dy[N_CELLS];
     double dw[N_CELLS];
+    double dc[N_CELLS];
 };
 
 double compute_cost(const struct image *image,

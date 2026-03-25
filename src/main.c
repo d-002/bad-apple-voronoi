@@ -71,8 +71,9 @@ void progress_bar(int i, int len)
         putchar('=');
     for (int i = count; i < size; i++)
         putchar(' ');
-    printf("] %3d%%, spent: %02d:%02d, eta: %02d:%02d\r", (int)(prop * 100),
+    printf("] %3d%%, spent: %02d:%02d, eta: %02d:%02d", (int)(prop * 100),
            min_s, sec_s, min_e, sec_e);
+    putchar(VERBOSE ? '\n' : '\r');
     fflush(stdout);
 }
 

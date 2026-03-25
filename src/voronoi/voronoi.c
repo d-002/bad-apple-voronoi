@@ -29,7 +29,8 @@ enum error_code voronoi_process_frame(const char *source_path,
             cell->x = (unsigned)rand() % image.w;
             cell->y = (unsigned)rand() % image.h;
             cell->weight = 1;
-            cell->color = i % 2 ? BLACK : WHITE;
+            cell->color = BLACK; // for now
+            cell->training_color = .5; // TODO (double)rand() / RAND_MAX;
         }
 
         if (*shared_data == NULL)
@@ -40,14 +41,14 @@ enum error_code voronoi_process_frame(const char *source_path,
         }
     }
 
-    if (++frame_count < 30)
+    if (frame_count++ < 30)
     {
         err = image_fit(&image, *shared_data);
         if (err == SUCCESS)
             err = image_apply_voronoi(&image, *shared_data);
+        if (err == SUCCESS)
+            err = image_save(&image, destination_path);
     }
-    if (err == SUCCESS)
-        err = image_save(&image, destination_path);
 
     free(image.pixels);
     return err;

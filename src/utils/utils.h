@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#define VERBOSE true
+
 #define SQR(x) ((x) * (x))
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 #define MIN2(a, b) ((a) < (b) ? (a) : (b))
