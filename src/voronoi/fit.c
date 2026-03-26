@@ -127,10 +127,10 @@ enum error_code image_fit(const struct image *image,
             loginfo("Gradient descent done in %d/%d iterations, final accuracy "
                     "score is %.3f%%.",
                     iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
-        else
-            logwarn("Gradient descent timed out.");
     }
 #endif /* VERBOSE */
+    if (running && !done)
+        logwarn("Gradient descent timed out.");
 
     return SUCCESS;
 }

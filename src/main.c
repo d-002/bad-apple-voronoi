@@ -67,7 +67,7 @@ void progress_bar(struct voronoi_data *shared_data, int len)
            hr_s, min_s, sec_s, hr_e, min_e, sec_e);
 #ifdef VERBOSE
     putchar('\n');
-#else
+#else /* VERBOSE */
     putchar('\r');
 #endif /* VERBOSE */
     fflush(stdout);
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     long latest_source_file;
     if (something_to_do(names, source, destination, len, &latest_source_file))
     {
-        printf("Converting all %d files found.\n", len);
+        loginfo("Converting all %d files found.", len);
 
         struct voronoi_data *shared_data;
         err = load_data(latest_source_file, SHARED_DATA_PATH, &shared_data);

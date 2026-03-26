@@ -25,7 +25,7 @@ struct thread_args
     struct gradient *out;
 };
 
-double compute_cost(const struct image *image, struct cell cells[N_CELLS])
+double compute_cost(const struct image *image, const struct cell cells[N_CELLS])
 {
     // TODO only check around the edited cell if applicable
     double total_cost = 0;
@@ -40,9 +40,11 @@ double compute_cost(const struct image *image, struct cell cells[N_CELLS])
             for (int i = 0; i < N_CELLS; i++)
             {
                 const struct cell *cell = cells + i;
-                double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
 #ifdef WEIGHTED
+                double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
                 dist *= cell->weight;
+#else /* WEIGHTED */
+                double dist = SQR(cell->x - x) + SQR(cell->y - y);
 #endif /* WEIGHTED */
                 if (dist < closest_dist || closest_dist < 0)
                 {
@@ -55,6 +57,30 @@ double compute_cost(const struct image *image, struct cell cells[N_CELLS])
         }
 
     return total_cost * SQR(PRECISION) / (image->w * image->h);
+}
+
+double compute_secondary_cost(const struct image *image,
+                              const struct cell cells[N_CELLS], const int i)
+{
+    const struct cell *cell = cells + i;
+    double x = cell->x, y = cell->y;
+
+    double closest_dist = -1;
+    for (int j = 0; j < N_CELLS; j++)
+    {
+        if (i == j)
+            continue;
+        const struct cell *cell = cells + j;
+
+        double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
+#ifdef WEIGHTED
+        dist *= cell->weight;
+#endif /* WEIGHTED */
+        if (dist < closest_dist || closest_dist < 0)
+            closest_dist = dist;
+    }
+
+    return -closest_dist / MAX2(image->w, image->h);
 }
 
 void *compute_gradient_part(void *data)
@@ -82,19 +108,29 @@ void *compute_gradient_part(void *data)
             : w - SAMPLE_WEIGHT_RADIUS;
 #endif /* WEIGHTED */
 
+        // for position changes, use a secondary cost to even out the cells
+        double secondary1 =
+            compute_secondary_cost(args->image, args->cell_copies, i);
+
         cell->x = x2;
         double cost2 = compute_cost(args->image, args->cell_copies);
+        cost2 += (compute_secondary_cost(args->image, args->cell_copies, i)
+                  - secondary1)
+            * SECONDARY_COST_FACTOR;
         cell->x = x;
         args->out->dx[i] = (cost2 - args->cost1) / (x2 - x);
 
         cell->y = y2;
         cost2 = compute_cost(args->image, args->cell_copies);
+        cost2 += (compute_secondary_cost(args->image, args->cell_copies, i)
+                  - secondary1)
+            * SECONDARY_COST_FACTOR;
         cell->y = y;
         args->out->dy[i] = (cost2 - args->cost1) / (y2 - y);
 
 #ifdef WEIGHTED
         cell->weight = w2;
-        cost2 = compute_cost(args->image, shared_data);
+        cost2 = compute_cost(args->image, args->cell_copies);
         cell->weight = w;
         args->out->dw[i] = (cost2 - args->cost1) / (w2 - w);
 #endif /* WEIGHTED */

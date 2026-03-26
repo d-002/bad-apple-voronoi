@@ -15,7 +15,7 @@
 #define TARGET_FIT_PROPORTION .98
 // threshold to stop early if the target cost was not reached
 #define COST_STAGNATE_THRESHOLD 1e-9
-#define MAX_ITERATIONS 200
+#define MAX_ITERATIONS 50
 // used in Adam optimizer logic
 #define MOMENTUM .9
 

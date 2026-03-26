@@ -9,6 +9,7 @@
 #include "logger/logger.h"
 #include "utils/now.h"
 #include "utils/utils.h"
+#include "voronoi/cost.h"
 
 enum error_code read_obj(const int fd, void *out, const ssize_t size)
 {

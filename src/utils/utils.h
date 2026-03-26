@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-// #define VERBOSE
+#define VERBOSE
 // #define WEIGHTED
 
 #define SQR(x) ((x) * (x))
