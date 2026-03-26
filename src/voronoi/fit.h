@@ -6,7 +6,7 @@
 #include "utils/errors.h"
 
 // base learning rates, different for pos and weights because of the scale
-#define POS_LEARNING_RATE 1
+#define POS_LEARNING_RATE 2
 #define WEIGHT_LEARNING_RATE .01
 #define COLOR_LEARNING_RATE .3
 // learning rate decay each iteration

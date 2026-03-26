@@ -19,7 +19,7 @@ struct voronoi_data
 {
     bool is_init;
     struct cell cells[N_CELLS];
-    long start_time;
+    double start_time;
     int frame_index;
 };
 
@@ -28,7 +28,10 @@ struct voronoi_data
  * This file will be able to be used to continue fitting later from the current
  * state
  */
-enum error_code save_data(struct voronoi_data *data, char *cache_path);
+enum error_code save_data(const struct voronoi_data *shared_data,
+                          const char *path);
+
+void init_data(struct voronoi_data *shared_data, const struct image *image);
 
 /*
  * Load back the stored shared data from a file.
@@ -36,9 +39,7 @@ enum error_code save_data(struct voronoi_data *data, char *cache_path);
  * respect to constants like N_CELLS) or it doesn't exist, the data is created
  * but uninitialized.
  */
-enum error_code load_data(long latest_source_file, long start_time,
-                          char *cache_path, struct voronoi_data **out);
-
-void init_data(struct voronoi_data *shared_data, struct image *image);
+enum error_code load_data(const long latest_source_file, const char *path,
+                          struct voronoi_data **out);
 
 #endif /* ! SHARED_DATA_H */

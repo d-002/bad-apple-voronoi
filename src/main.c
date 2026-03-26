@@ -1,26 +1,16 @@
-#ifndef _POSIX_C_SOURCE
-#    define _POSIX_C_SOURCE 199309L
-#endif /* ! _POSIX_C_SOURCE */
 #include <linux/limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <time.h>
 
 #include "files/files.h"
 #include "logger/logger.h"
 #include "signals/signals.h"
 #include "utils/errors.h"
+#include "utils/now.h"
 #include "utils/utils.h"
-
-double now()
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec + ts.tv_nsec * 1e-9;
-}
 
 enum error_code check_args(int argc, char *argv[], char **source,
                            char **destination)
@@ -98,8 +88,7 @@ int main(int argc, char *argv[])
         printf("Converting all %d files found.\n", len);
 
         struct voronoi_data *shared_data;
-        err = load_data(latest_source_file, now(), SHARED_DATA_PATH,
-                        &shared_data);
+        err = load_data(latest_source_file, SHARED_DATA_PATH, &shared_data);
         if (err == SUCCESS)
             err = setup_signals();
         if (err == SUCCESS)
@@ -113,10 +102,7 @@ int main(int argc, char *argv[])
             }
 
             if (!running)
-            {
-                loginfo("Saving state to file");
                 save_data(shared_data, SHARED_DATA_PATH);
-            }
 
             putchar('\n');
             free(shared_data);

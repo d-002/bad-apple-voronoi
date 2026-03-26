@@ -59,7 +59,7 @@ enum error_code image_load(const char *path, struct image *image)
 read_err:
     free(image->pixels);
     close(fd);
-    logerror("Failed to read from file: '%S'", path);
+    logerror("Failed to read from file: '%s'", path);
     return IO_ERROR;
 }
 

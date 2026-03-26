@@ -22,7 +22,7 @@ enum error_code voronoi_process_frame(const char *source_path,
     if (!shared_data->is_init)
         init_data(shared_data, &image);
 
-    if (frame_count % 4 == 0 && frame_count < 30)
+    if (frame_count % 4 == 0)
         err = image_fit(&image, shared_data);
     if (frame_count % 2)
         if (err == SUCCESS)

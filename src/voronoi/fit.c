@@ -2,9 +2,9 @@
 
 #include <math.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 #include "cost.h"
+#include "logger/logger.h"
 #include "signals/signals.h"
 #include "utils/utils.h"
 
@@ -114,18 +114,18 @@ enum error_code image_fit(const struct image *image,
         prev_cost = cost;
 
         if ((iteration + 1) % 1 == 0 && VERBOSE) // TODO restore modulo
-            printf("Iteration %d/%d, accuracy score is %.3f%%\n", iteration + 1,
-                   MAX_ITERATIONS, (1 - cost) * 100);
+            loginfo("Iteration %d/%d, accuracy score is %.3f%%\n",
+                    iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
     }
 
     if (VERBOSE)
     {
         if (done)
-            printf("Gradient descent done in %d/%d iterations, final accuracy "
-                   "score is %.3f%%.\n",
-                   iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
+            loginfo("Gradient descent done in %d/%d iterations, final accuracy "
+                    "score is %.3f%%.\n",
+                    iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
         else
-            puts("Warning: gradient descent timed out.");
+            logwarn("Gradient descent timed out.");
     }
 
     return SUCCESS;
