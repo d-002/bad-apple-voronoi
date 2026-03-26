@@ -7,6 +7,7 @@ enum error_code
     ARGS_ERROR = 1,
     IO_ERROR = 2,
     SIGNAL_ERROR = 3,
+    THREAD_ERROR = 4,
 
     ALLOC_ERROR = -1,
 };

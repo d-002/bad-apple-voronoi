@@ -2,7 +2,7 @@
 #define COST_H
 
 #include "image/image.h"
-#include "shared_data.h"
+#include "utils/errors.h"
 
 // how much to downsample the image
 #define PRECISION 4
@@ -22,10 +22,9 @@ struct gradient
     double dc[N_CELLS];
 };
 
-double compute_cost(const struct image *image,
-                    struct voronoi_data *shared_data);
-void compute_gradient(const struct image *image,
-                      struct voronoi_data *shared_data, struct gradient *out,
-                      double cost1);
+double compute_cost(const struct image *image, struct cell cells[N_CELLS]);
+enum error_code compute_gradient(const struct image *image,
+                                 struct cell cells[N_CELLS],
+                                 struct gradient *out, double cost1);
 
 #endif /* ! COST_H */

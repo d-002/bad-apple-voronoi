@@ -16,7 +16,7 @@ enum error_code image_fit(const struct image *image,
     double color_learning_rate = COLOR_LEARNING_RATE;
 
     double prev_cost = -1;
-    double cost = compute_cost(image, shared_data);
+    double cost = compute_cost(image, shared_data->cells);
     int consecutive_stagnate = 0;
 
     // try to skip the loop entirely
@@ -28,7 +28,7 @@ enum error_code image_fit(const struct image *image,
     for (iteration = 0; iteration < MAX_ITERATIONS && !done && running;
          iteration++)
     {
-        compute_gradient(image, shared_data, &gradient, cost);
+        compute_gradient(image, shared_data->cells, &gradient, cost);
 
         for (int i = 0; i < N_CELLS; i++)
         {
@@ -99,7 +99,7 @@ enum error_code image_fit(const struct image *image,
         weight_learning_rate *= LEARNING_RATE_DECAY;
         color_learning_rate *= LEARNING_RATE_DECAY;
 
-        cost = compute_cost(image, shared_data);
+        cost = compute_cost(image, shared_data->cells);
 
         if (ABS(prev_cost - cost) <= COST_STAGNATE_THRESHOLD)
         {

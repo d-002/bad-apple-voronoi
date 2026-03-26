@@ -17,7 +17,7 @@ OBJ=src/image/image.o \
 	src/files/files.o \
 	src/logger/logger.o \
 	src/signals/signals.o \
-	src/utils/now.o \
+	src/utils/now.o src/utils/thread_conf.o \
 	src/voronoi/apply.o src/voronoi/cost.o src/voronoi/fit.o src/voronoi/shared_data.o src/voronoi/voronoi.o
 
 .PHONY: all clean

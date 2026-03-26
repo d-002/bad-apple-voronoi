@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
 
 #include "files/files.h"
@@ -10,6 +9,7 @@
 #include "signals/signals.h"
 #include "utils/errors.h"
 #include "utils/now.h"
+#include "utils/thread_conf.h"
 #include "utils/utils.h"
 
 enum error_code check_args(int argc, char *argv[], char **source,
@@ -81,6 +81,8 @@ int main(int argc, char *argv[])
     err = add_files_sorted(source, names, &len);
     if (err != SUCCESS)
         return err;
+
+    threads_init();
 
     long latest_source_file;
     if (something_to_do(names, source, destination, len, &latest_source_file))
