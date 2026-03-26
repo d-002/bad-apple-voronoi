@@ -5,9 +5,9 @@
 #include "utils/errors.h"
 
 // how much to downsample the image
-#define PRECISION 4
+#define PRECISION 8
 // sample distance for gradient estimation
-#define SAMPLE_POS_RADIUS (PRECISION * 2)
+#define SAMPLE_POS_RADIUS PRECISION
 #define SAMPLE_WEIGHT_RADIUS .05
 #define SAMPLE_COLOR_RADIUS .01
 // weights bounds to keep them from diverging

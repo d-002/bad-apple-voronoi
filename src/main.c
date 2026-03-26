@@ -65,7 +65,11 @@ void progress_bar(struct voronoi_data *shared_data, int len)
         putchar(' ');
     printf("] %3d%%, spent: %d:%02d:%02d, eta: %d:%02d:%02d", (int)(prop * 100),
            hr_s, min_s, sec_s, hr_e, min_e, sec_e);
-    putchar(VERBOSE ? '\n' : '\r');
+#ifdef VERBOSE
+    putchar('\n');
+#else
+    putchar('\r');
+#endif /* VERBOSE */
     fflush(stdout);
 }
 

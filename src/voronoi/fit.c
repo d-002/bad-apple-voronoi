@@ -113,12 +113,15 @@ enum error_code image_fit(const struct image *image,
 
         prev_cost = cost;
 
-        if ((iteration + 1) % 1 == 0 && VERBOSE) // TODO restore modulo
+#ifdef VERBOSE
+        if ((iteration + 1) % 1 == 0) // TODO restore modulo
             loginfo("Iteration %d/%d, accuracy score is %.3f%%", iteration + 1,
                     MAX_ITERATIONS, (1 - cost) * 100);
+#endif /* VERBOSE */
     }
 
-    if (VERBOSE && running)
+#ifdef VERBOSE
+    if (running)
     {
         if (done)
             loginfo("Gradient descent done in %d/%d iterations, final accuracy "
@@ -127,6 +130,7 @@ enum error_code image_fit(const struct image *image,
         else
             logwarn("Gradient descent timed out.");
     }
+#endif /* VERBOSE */
 
     return SUCCESS;
 }

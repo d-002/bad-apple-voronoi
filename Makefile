@@ -24,7 +24,7 @@ OBJ=src/image/image.o \
 
 # pipeline steps
 
-all: extract_frames convert_images1 fit_voronoi convert_images2 group_frames
+all: $(TARGET) extract_frames convert_images1 fit_voronoi convert_images2 group_frames
 
 extract_frames:
 	@echo -e "\n##### 1/5 -- FRAMES AND VIDEO EXTRACTION"
@@ -38,7 +38,7 @@ convert_images1:
 	@echo -e "\n##### 2/5 -- IMAGES CONVERSION 1"
 	@$(PYTHON) py/img2bnw.py $(IMAGES_INPUT) $(IMAGES_BNW)
 
-fit_voronoi: $(TARGET)
+fit_voronoi:
 	@echo -e "\n##### 3/5 -- VORONOI FITTING"
 	@./$(TARGET) $(IMAGES_BNW) $(IMAGES_VORONOI)
 
