@@ -30,7 +30,6 @@ static struct voronoi_data *shared_data_create(long start_time)
 
 void init_data(struct voronoi_data *shared_data, struct image *image)
 {
-    shared_data = calloc(1, sizeof(struct voronoi_data));
     for (int i = 0; i < N_CELLS; i++)
     {
         struct cell *cell = shared_data->cells + i;
@@ -39,9 +38,11 @@ void init_data(struct voronoi_data *shared_data, struct image *image)
 #ifdef WEIGHTED
         cell->weight = (MIN_WEIGHT + MAX_WEIGHT) / 2.;
 #endif /* WEIGHTED */
-        cell->color = BLACK; // for now
         cell->training_color = (double)rand() / RAND_MAX;
+        cell->color = cell->training_color < .5 ? BLACK : WHITE;
     }
+
+    shared_data->is_init = true;
 }
 
 enum error_code load_data(long latest_source_file, long start_time,

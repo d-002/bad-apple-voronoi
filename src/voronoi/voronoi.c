@@ -5,7 +5,6 @@
 #include "apply.h"
 #include "cost.h"
 #include "fit.h"
-#include "logger/logger.h"
 #include "utils/errors.h"
 
 // TODO remove
@@ -19,6 +18,9 @@ enum error_code voronoi_process_frame(const char *source_path,
     enum error_code err = image_load(source_path, &image);
     if (err != SUCCESS)
         return err;
+
+    if (!shared_data->is_init)
+        init_data(shared_data, &image);
 
     if (frame_count % 4 == 0 && frame_count < 30)
         err = image_fit(&image, shared_data);

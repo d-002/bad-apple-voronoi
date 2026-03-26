@@ -4,7 +4,7 @@
 #include "utils/utils.h"
 
 // number of cells in a given frame
-#define N_CELLS 30
+#define N_CELLS 50
 
 enum color_class
 {

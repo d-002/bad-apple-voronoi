@@ -29,7 +29,7 @@ static char *join_path(const char *path1, const char *path2)
 }
 
 enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
-                                 size_t *len)
+                                 int *len)
 {
     DIR *dir = opendir(path);
     if (dir == NULL)
@@ -63,10 +63,10 @@ enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
 
         memcpy(copy, name, length);
 
-        for (size_t i = 0; i <= *len; i++)
+        for (int i = 0; i <= *len; i++)
             if (i == *len || strcmp(names[i], name) > 0)
             {
-                for (size_t j = *len; j > i; j--)
+                for (int j = *len; j > i; j--)
                     names[j] = names[j - 1];
                 names[i] = copy;
                 break;
@@ -80,13 +80,12 @@ enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
 }
 
 bool something_to_do(char *const names[MAX_NUM_FILES], const char *source,
-                     const char *destination, size_t len,
-                     long *latest_source_file)
+                     const char *destination, int len, long *latest_source_file)
 {
     *latest_source_file = 0;
     bool todo = false;
 
-    for (size_t i = 0; i < len; i++)
+    for (int i = 0; i < len; i++)
     {
         char *source_path = join_path(source, names[i]);
         char *destination_path = join_path(destination, names[i]);

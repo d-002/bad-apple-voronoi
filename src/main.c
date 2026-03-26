@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
         return err;
 
     char *names[MAX_NUM_FILES];
-    size_t len;
+    int len;
     err = add_files_sorted(source, names, &len);
     if (err != SUCCESS)
         return err;
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     long latest_source_file;
     if (something_to_do(names, source, destination, len, &latest_source_file))
     {
-        printf("Converting all %ld files found.\n", len);
+        printf("Converting all %d files found.\n", len);
 
         struct voronoi_data *shared_data;
         err = load_data(latest_source_file, now(), SHARED_DATA_PATH,
@@ -104,9 +104,11 @@ int main(int argc, char *argv[])
             err = setup_signals();
         if (err == SUCCESS)
         {
-            for (size_t i = 0; i < len && running; i++)
+            for (; shared_data->frame_index < len && running;
+                 shared_data->frame_index++)
             {
-                err = process_file(names[i], source, destination, shared_data);
+                err = process_file(names[shared_data->frame_index], source,
+                                   destination, shared_data);
                 progress_bar(shared_data, len);
             }
 
@@ -123,7 +125,7 @@ int main(int argc, char *argv[])
     else
         printf("%s: nothing to do.\n", argv[0]);
 
-    for (size_t i = 0; i < len; i++)
+    for (int i = 0; i < len; i++)
         free(names[i]);
 
     return err;

@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "cost.h"
+#include "signals/signals.h"
 #include "utils/utils.h"
 
 enum error_code image_fit(const struct image *image,
@@ -24,7 +25,8 @@ enum error_code image_fit(const struct image *image,
 
     struct gradient gradient;
     struct gradient moving_average = { 0 };
-    for (iteration = 0; iteration < MAX_ITERATIONS && !done; iteration++)
+    for (iteration = 0; iteration < MAX_ITERATIONS && !done && running;
+         iteration++)
     {
         compute_gradient(image, shared_data, &gradient, cost);
 

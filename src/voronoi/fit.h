@@ -12,7 +12,7 @@
 // learning rate decay each iteration
 #define LEARNING_RATE_DECAY .995
 // proportion of pixels that should be correct to end fitting process
-#define TARGET_FIT_PROPORTION .85
+#define TARGET_FIT_PROPORTION .95
 // threshold to stop early if the target cost was not reached
 #define COST_STAGNATE_THRESHOLD 1e-9
 #define MAX_ITERATIONS 200
