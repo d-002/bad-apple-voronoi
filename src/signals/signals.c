@@ -18,7 +18,8 @@ void handler(int signum)
     case SIGPIPE:
         return;
     case SIGINT:
-        loginfo("Caught SIGINT, propagating");
+        loginfo("Saving state to file and stopping...");
+        loginfo("Please wait for the end of the current fitting iteration.");
         running = false;
         return;
     default:
