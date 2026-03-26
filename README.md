@@ -7,8 +7,6 @@ Instructions:
 - The outputted video file is `./video_out.mp4`.
 
 Improvement steps:
-- Paralellize computing parts of the gradient / use the GPU for cost computation
-- Force stop with double ctrl+c
 - Possibility to force do something or force ignore cache file in voronoi step
 - Compute bounding boxes for cost evaluation? Worth it for weighted diagrams?
 - Fix all TODOs

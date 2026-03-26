@@ -6,6 +6,7 @@
 
 #include <signal.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "logger/logger.h"
 
@@ -19,9 +20,18 @@ void handler(int signum)
         return;
     case SIGINT:
         putchar('\n'); // separate and avoid aligning issues with '^C' print
-        loginfo("Saving state to file and stopping...");
-        loginfo("Please wait for the end of the current fitting iteration.");
-        running = false;
+        if (running)
+        {
+            loginfo("Saving state to file and stopping...");
+            logwarn(
+                "Please wait for the end of the current fitting iteration.");
+            running = false;
+        }
+        else
+        {
+            logerror("Force quit without saving state.");
+            exit(1);
+        }
         return;
     default:
         return;
