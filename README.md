@@ -7,6 +7,7 @@ Instructions:
 - The outputted video file is `./video_out.mp4`.
 
 Improvement steps:
+- Draw boundary lines
 - Implement state save/load for shared_data and current image index, check cache
   integrity compared to the modification timestamp of the state file
 - Compute bounding boxes for cost evaluation? Worth it for weighted diagrams?
