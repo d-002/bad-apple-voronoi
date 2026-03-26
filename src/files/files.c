@@ -80,35 +80,40 @@ enum error_code add_files_sorted(const char *path, char *names[MAX_NUM_FILES],
 }
 
 bool something_to_do(char *const names[MAX_NUM_FILES], const char *source,
-                     const char *destination, size_t len)
+                     const char *destination, size_t len,
+                     long *latest_source_file)
 {
+    *latest_source_file = 0;
+    bool todo = false;
+
     for (size_t i = 0; i < len; i++)
     {
         char *source_path = join_path(source, names[i]);
         char *destination_path = join_path(destination, names[i]);
 
-        bool todo = access(destination_path, F_OK) != 0;
-        if (!todo)
+        bool existing = access(destination_path, F_OK) == 0;
+        if (existing)
         {
             struct stat s1, s2;
             stat(source_path, &s1);
             stat(destination_path, &s2);
             if (s1.st_mtime > s2.st_mtime)
                 todo = true;
+            *latest_source_file = MAX2(*latest_source_file, s1.st_mtime);
         }
+        else
+            todo = true;
 
         free(source_path);
         free(destination_path);
-        if (todo)
-            return todo;
     }
 
-    return false;
+    return todo;
 }
 
 enum error_code process_file(const char *name, const char *source,
                              const char *destination,
-                             struct voronoi_data **shared_data)
+                             struct voronoi_data *shared_data)
 {
     char *source_path = join_path(source, name);
     char *destination_path = join_path(destination, name);

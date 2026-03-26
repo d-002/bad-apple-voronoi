@@ -11,10 +11,9 @@
 
 #include "files/files.h"
 #include "logger/logger.h"
+#include "signals/signals.h"
 #include "utils/errors.h"
 #include "utils/utils.h"
-
-static double start;
 
 double now()
 {
@@ -47,10 +46,11 @@ enum error_code check_args(int argc, char *argv[], char **source,
     return SUCCESS;
 }
 
-void progress_bar(int i, int len)
+void progress_bar(struct voronoi_data *shared_data, int len)
 {
-    const double spent = now() - start;
-    const double eta = MAX2(spent * ((double)len / (i + 1) - 1), 0);
+    const double spent = now() - shared_data->start_time;
+    const double eta =
+        MAX2(spent * ((double)len / (shared_data->frame_index + 1) - 1), 0);
     const int hr_s = spent / 3600, min_s = (int)(spent / 60) % 60,
               sec_s = (int)(spent) % 60;
     int hr_e = eta / 3600, min_e = (int)(eta / 60) % 60,
@@ -65,7 +65,7 @@ void progress_bar(int i, int len)
         prop = 1;
     }
     else
-        prop = (double)i / len;
+        prop = (double)shared_data->frame_index / len;
     const int count = round(prop * size);
 
     printf("Progress: [");
@@ -92,23 +92,33 @@ int main(int argc, char *argv[])
     if (err != SUCCESS)
         return err;
 
-    if (something_to_do(names, source, destination, len))
+    long latest_source_file;
+    if (something_to_do(names, source, destination, len, &latest_source_file))
     {
         printf("Converting all %ld files found.\n", len);
 
-        // share some data across frames, since most of them introduce little
-        // change keeping the old Voronoi cells can be advantageous
-        struct voronoi_data *shared_data = NULL;
-
-        start = now();
-        for (size_t i = 0; i < len; i++)
+        struct voronoi_data *shared_data;
+        err = load_data(latest_source_file, now(), SHARED_DATA_PATH,
+                        &shared_data);
+        if (err == SUCCESS)
+            err = setup_signals();
+        if (err == SUCCESS)
         {
-            err = process_file(names[i], source, destination, &shared_data);
-            progress_bar(i + 1, len);
-        }
+            for (size_t i = 0; i < len && running; i++)
+            {
+                err = process_file(names[i], source, destination, shared_data);
+                progress_bar(shared_data, len);
+            }
 
-        putchar('\n');
-        free(shared_data);
+            if (!running)
+            {
+                loginfo("Saving state to file");
+                save_data(shared_data, SHARED_DATA_PATH);
+            }
+
+            putchar('\n');
+            free(shared_data);
+        }
     }
     else
         printf("%s: nothing to do.\n", argv[0]);

@@ -47,7 +47,7 @@ enum error_code image_fit(const struct image *image,
             moving_average.dy[i] = MOMENTUM * moving_average.dy[i]
                 + (1 - MOMENTUM) * gradient.dy[i];
             moving_average.dc[i] = MOMENTUM * moving_average.dc[i]
-                + (1 - MOMENTUM) * gradient.dc[i];
+                + (1 - MOMENTUM) * (gradient.dc[i] < 0 ? -1 : 1);
 #ifdef WEIGHTED
             moving_average.dw[i] = MOMENTUM * moving_average.dw[i]
                 + (1 - MOMENTUM) * gradient.dw[i];

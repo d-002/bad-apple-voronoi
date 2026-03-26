@@ -55,8 +55,14 @@ enum error_code image_apply_voronoi(struct image *image,
             int i01 = indices[y * image->w + (x + 1)];
             int i10 = indices[(y + 1) * image->w + x];
             int i11 = indices[(y + 1) * image->w + (x + 1)];
-            if (i00 == i01 && i00 == i10 && i00 == i11 && i01 == i10
-                && i01 == i11 && i10 == i11)
+            enum color_class c00 = shared_data->cells[i00].color;
+            enum color_class c01 = shared_data->cells[i01].color;
+            enum color_class c10 = shared_data->cells[i10].color;
+            enum color_class c11 = shared_data->cells[i11].color;
+            if ((i00 == i01 && i00 == i10 && i00 == i11 && i01 == i10
+                 && i01 == i11 && i10 == i11)
+                || (c00 != c01 || c00 != c10 || c00 != c11 || c01 != c10
+                    || c01 != c11 || c10 != c11))
                 continue;
 
             set_pixel(image, x, y,

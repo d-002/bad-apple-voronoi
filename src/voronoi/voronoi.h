@@ -6,6 +6,6 @@
 
 enum error_code voronoi_process_frame(const char *source_path,
                                       const char *destination_path,
-                                      struct voronoi_data **shared_data);
+                                      struct voronoi_data *shared_data);
 
 #endif /* ! VORONOI_H */

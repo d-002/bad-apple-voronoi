@@ -18,3 +18,6 @@ voronoi_fitter
 
 # python
 __pycache__
+
+# saved state
+saved_state.bin

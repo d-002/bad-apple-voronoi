@@ -8,14 +8,14 @@
 // base learning rates, different for pos and weights because of the scale
 #define POS_LEARNING_RATE 1
 #define WEIGHT_LEARNING_RATE .01
-#define COLOR_LEARNING_RATE .5
+#define COLOR_LEARNING_RATE .3
 // learning rate decay each iteration
-#define LEARNING_RATE_DECAY .99
+#define LEARNING_RATE_DECAY .995
 // proportion of pixels that should be correct to end fitting process
-#define TARGET_FIT_PROPORTION .8
+#define TARGET_FIT_PROPORTION .85
 // threshold to stop early if the target cost was not reached
 #define COST_STAGNATE_THRESHOLD 1e-9
-#define MAX_ITERATIONS 100
+#define MAX_ITERATIONS 200
 // used in Adam optimizer logic
 #define MOMENTUM .9
 
