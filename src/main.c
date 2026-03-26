@@ -93,18 +93,22 @@ int main(int argc, char *argv[])
             err = setup_signals();
         if (err == SUCCESS)
         {
-            for (; shared_data->frame_index < len && running;
-                 shared_data->frame_index++)
+            for (; shared_data->frame_index < len; shared_data->frame_index++)
             {
                 err = process_file(names[shared_data->frame_index], source,
                                    destination, shared_data);
-                progress_bar(shared_data, len);
+
+                if (running)
+                    progress_bar(shared_data, len);
+                else
+                {
+                    save_data(shared_data, SHARED_DATA_PATH);
+                    break;
+                }
             }
 
-            if (!running)
-                save_data(shared_data, SHARED_DATA_PATH);
-
-            putchar('\n');
+            if (running)
+                putchar('\n');
             free(shared_data);
         }
     }

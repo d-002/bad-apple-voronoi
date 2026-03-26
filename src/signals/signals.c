@@ -5,7 +5,7 @@
 #include "signals.h"
 
 #include <signal.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 #include "logger/logger.h"
 
@@ -18,6 +18,7 @@ void handler(int signum)
     case SIGPIPE:
         return;
     case SIGINT:
+        putchar('\n'); // separate and avoid aligning issues with '^C' print
         loginfo("Saving state to file and stopping...");
         loginfo("Please wait for the end of the current fitting iteration.");
         running = false;
