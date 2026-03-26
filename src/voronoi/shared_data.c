@@ -34,7 +34,8 @@ enum error_code save_data(const struct voronoi_data *shared_data,
     enum error_code err = write_obj(fd, &n_cells, sizeof(int));
     if (err != SUCCESS)
         goto write_err;
-    err = write_obj(fd, &shared_data->start_time, sizeof(double));
+    double spent = now() - shared_data->start_time;
+    err = write_obj(fd, &spent, sizeof(double));
     if (err != SUCCESS)
         goto write_err;
     err = write_obj(fd, &shared_data->frame_index, sizeof(int));
@@ -114,9 +115,11 @@ enum error_code restore_data_from_file(const char *path,
         return SUCCESS;
     }
 
-    err = read_obj(fd, &shared_data->start_time, sizeof(double));
+    double spent;
+    err = read_obj(fd, &spent, sizeof(double));
     if (err != SUCCESS)
         goto read_err;
+    shared_data->start_time = now() - spent;
     err = read_obj(fd, &shared_data->frame_index, sizeof(int));
     if (err != SUCCESS)
         goto read_err;
@@ -129,8 +132,14 @@ enum error_code restore_data_from_file(const char *path,
     }
 
     shared_data->is_init = true;
-    loginfo("Successfully restored state from cache file.");
     close(fd);
+
+    int hr = spent / 3600, min = (int)(spent / 60) % 60,
+        sec = (int)(spent) % 60;
+    loginfo("Successfully restored state from cache file.");
+    loginfo(
+        "Current frame is now %d, with %d:%02d:%02d spent in previous runs.",
+        shared_data->frame_index + 1, hr, min, sec);
     return SUCCESS;
 
 read_err:

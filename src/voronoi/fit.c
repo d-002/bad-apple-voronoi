@@ -118,7 +118,7 @@ enum error_code image_fit(const struct image *image,
                     iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
     }
 
-    if (VERBOSE)
+    if (VERBOSE && running)
     {
         if (done)
             loginfo("Gradient descent done in %d/%d iterations, final accuracy "

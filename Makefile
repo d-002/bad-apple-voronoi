@@ -70,4 +70,4 @@ clean-full: clean
 	$(RM) $(IMAGES_INPUT)/* $(IMAGES_BNW)/* $(IMAGES_VORONOI)/* \
 		$(IMAGES_OUTPUT)/* $(OUTPUT)
 	$(RM) $(VIDEO_OUT) $(EXTRACTED_AUDIO)
-	$(RM) -r **/__pycache__
+	$(RM) -r **/__pycache__ saved_state.bin
