@@ -41,10 +41,10 @@ void progress_bar(struct voronoi_data *shared_data, int len)
     const double spent = now() - shared_data->start_time;
     const double eta =
         MAX2(spent * ((double)len / (shared_data->frame_index + 1) - 1), 0);
-    const int hr_s = spent / 3600, min_s = (int)(spent / 60) % 60,
-              sec_s = (int)(spent) % 60;
-    int hr_e = eta / 3600, min_e = (int)(eta / 60) % 60,
-        sec_e = (int)(eta) % 60;
+    const int hr_s = spent / 3600, min_s = (int)round(spent / 60) % 60,
+              sec_s = (int)round(spent) % 60;
+    int hr_e = eta / 3600, min_e = (int)round(eta / 60) % 60,
+        sec_e = (int)round(eta) % 60;
 
     static const int size = 50;
     double prop;
@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
         }
     }
     else
-        printf("%s: nothing to do.\n", argv[0]);
+        loginfo("Nothing to do.");
 
     for (int i = 0; i < len; i++)
         free(names[i]);

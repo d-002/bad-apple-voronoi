@@ -1,6 +1,5 @@
 #include "cost.h"
 
-#include <math.h>
 #include <pthread.h>
 #include <string.h>
 
@@ -40,11 +39,9 @@ double compute_cost(const struct image *image, const struct cell cells[N_CELLS])
             for (int i = 0; i < N_CELLS; i++)
             {
                 const struct cell *cell = cells + i;
-#ifdef WEIGHTED
-                double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
-                dist *= cell->weight;
-#else /* WEIGHTED */
                 double dist = SQR(cell->x - x) + SQR(cell->y - y);
+#ifdef WEIGHTED
+                dist *= SQR(cell->weight);
 #endif /* WEIGHTED */
                 if (dist < closest_dist || closest_dist < 0)
                 {
@@ -76,6 +73,9 @@ double compute_secondary_cost(const struct image *image,
 
         const struct cell *cell = cells + j;
         double dist = SQR(cell->x - x) + SQR(cell->y - y);
+#ifdef WEIGHTED
+        dist *= SQR(cell->weight);
+#endif /* WEIGHTED */
         repulsion += 1 / (dist + epsilon);
     }
 

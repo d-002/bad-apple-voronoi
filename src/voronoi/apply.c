@@ -1,6 +1,5 @@
 #include "apply.h"
 
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -26,11 +25,9 @@ enum error_code image_apply_voronoi(struct image *image,
             for (int i = 0; i < N_CELLS; i++)
             {
                 const struct cell *cell = shared_data->cells + i;
-#ifdef WEIGHTED
-                double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
-                dist *= cell->weight;
-#else /* WEIGHTED */
                 double dist = SQR(cell->x - x) + SQR(cell->y - y);
+#ifdef WEIGHTED
+                dist *= SQR(cell->weight);
 #endif /* WEIGHTED */
                 if (dist < closest_dist || closest_dist < 0)
                 {

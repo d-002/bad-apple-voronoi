@@ -1,6 +1,7 @@
 #include "shared_data.h"
 
 #include <fcntl.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -135,8 +136,8 @@ enum error_code restore_data_from_file(const char *path,
     shared_data->is_init = true;
     close(fd);
 
-    int hr = spent / 3600, min = (int)(spent / 60) % 60,
-        sec = (int)(spent) % 60;
+    int hr = spent / 3600, min = (int)round(spent / 60) % 60,
+        sec = (int)round(spent) % 60;
     loginfo("Successfully restored state from cache file.");
     loginfo(
         "Current frame is now %d, with %d:%02d:%02d spent in previous runs.",
