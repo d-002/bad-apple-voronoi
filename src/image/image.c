@@ -1,6 +1,7 @@
 #include "image.h"
 
 #include <fcntl.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -24,8 +25,9 @@ enum error_code image_load(const char *path, struct image *image)
         goto read_err;
     image->w = ((unsigned char)size_buf[0] << 8) + (unsigned char)size_buf[1];
     image->h = ((unsigned char)size_buf[2] << 8) + (unsigned char)size_buf[3];
-    size_t size = image->w * image->h;
-    image->pixels = calloc(size / 8 + 1, sizeof(uint8_t));
+    image->size = image->w * image->h;
+    image->pixels = calloc(image->size / 8 + 1, sizeof(uint8_t));
+    image->ideal_distance = sqrt((double)image->size / N_CELLS);
 
     char buf[BUF_SIZE];
     ssize_t count;
@@ -35,7 +37,7 @@ enum error_code image_load(const char *path, struct image *image)
         if (count < 0)
             goto read_err;
 
-        if (i + count > size / 8 + 1)
+        if (i + count > image->size / 8 + 1)
         {
             logerror("Specified image size was too small");
             free(image->pixels);
@@ -48,10 +50,10 @@ enum error_code image_load(const char *path, struct image *image)
         i += count;
     }
 
-    if (i * 8 < size)
+    if (i * 8 < image->size)
         logwarn(
             "Expected %ld pixels but only got %ld for image of size (%dx%d)",
-            size, i, image->w, image->h);
+            image->size, i, image->w, image->h);
 
     close(fd);
     return SUCCESS;
@@ -76,7 +78,7 @@ enum error_code image_save(const struct image *image, const char *path)
     if (write(fd, size_buf, 4) != 4)
         goto write_err;
 
-    size_t size = image->w * image->h / 8 + 1;
+    size_t size = image->size / 8 + 1;
     size_t i = 0;
     while (i < size)
     {

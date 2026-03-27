@@ -12,8 +12,12 @@ struct image
 {
     int w;
     int h;
+    size_t size; // cached
 
     uint8_t *pixels;
+
+    // stored here to avoid recalculating it
+    double ideal_distance;
 };
 
 // wrapper functions if I want to use Hilbert curves for better memory usage

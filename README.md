@@ -9,6 +9,7 @@ Instructions:
 Improvement steps:
 - Optimization ideas: make a thread pool and keep it for the whole program,
   profile to see speed increase potential, parallelize image creation
+- Rendering idea: smoothing in between frames, possible replacement to %
 - Possibility to force do something or force ignore cache file in voronoi step
 - Compute bounding boxes for cost evaluation? Worth it for weighted diagrams?
 - Fix all TODOs

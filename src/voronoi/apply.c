@@ -10,8 +10,7 @@
 enum error_code image_apply_voronoi(struct image *image,
                                     const struct voronoi_data *shared_data)
 {
-    size_t size = image->w * image->h;
-    int *indices = malloc(size * sizeof(int));
+    int *indices = malloc(image->size * sizeof(int));
     if (indices == NULL)
     {
         log_alloc_error();

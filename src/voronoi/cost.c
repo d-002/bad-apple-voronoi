@@ -56,7 +56,7 @@ double compute_cost(const struct image *image, const struct cell cells[N_CELLS])
             total_cost += ABS(color1 - color2);
         }
 
-    return total_cost * SQR(PRECISION) / (image->w * image->h);
+    return total_cost * SQR(PRECISION) / image->size;
 }
 
 double compute_secondary_cost(const struct image *image,
@@ -70,17 +70,14 @@ double compute_secondary_cost(const struct image *image,
     {
         if (i == j)
             continue;
-        const struct cell *cell = cells + j;
 
+        const struct cell *cell = cells + j;
         double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
-#ifdef WEIGHTED
-        dist *= cell->weight;
-#endif /* WEIGHTED */
         if (dist < closest_dist || closest_dist < 0)
             closest_dist = dist;
     }
 
-    return -closest_dist / MAX2(image->w, image->h);
+    return SQR(closest_dist - image->ideal_distance) / image->size;
 }
 
 void *compute_gradient_part(void *data)
@@ -116,7 +113,7 @@ void *compute_gradient_part(void *data)
         double cost2 = compute_cost(args->image, args->cell_copies);
         cost2 += (compute_secondary_cost(args->image, args->cell_copies, i)
                   - secondary1)
-            * SECONDARY_COST_FACTOR;
+            / (x2 - x) * SECONDARY_COST_FACTOR;
         cell->x = x;
         args->out->dx[i] = (cost2 - args->cost1) / (x2 - x);
 
@@ -124,7 +121,7 @@ void *compute_gradient_part(void *data)
         cost2 = compute_cost(args->image, args->cell_copies);
         cost2 += (compute_secondary_cost(args->image, args->cell_copies, i)
                   - secondary1)
-            * SECONDARY_COST_FACTOR;
+            / (y2 - y) * SECONDARY_COST_FACTOR;
         cell->y = y;
         args->out->dy[i] = (cost2 - args->cost1) / (y2 - y);
 
