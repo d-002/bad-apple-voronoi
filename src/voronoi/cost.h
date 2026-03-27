@@ -11,7 +11,7 @@
 #define SAMPLE_WEIGHT_RADIUS .05
 #define SAMPLE_COLOR_RADIUS .01
 // weight for the secondary cost, see relevant code
-#define SECONDARY_COST_FACTOR .01
+#define SECONDARY_COST_FACTOR .002
 // weights bounds to keep them from diverging
 #define MIN_WEIGHT 1
 #define MAX_WEIGHT 3

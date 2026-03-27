@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "apply.h"
-#include "cost.h"
 #include "fit.h"
 #include "utils/errors.h"
 
@@ -22,7 +21,7 @@ enum error_code voronoi_process_frame(const char *source_path,
     if (!shared_data->is_init)
         init_data(shared_data, &image);
 
-    if (frame_count % 2 == 0)
+    if (frame_count % 4 == 0)
         err = image_fit(&image, shared_data);
     if (frame_count % 2 == 0)
         if (err == SUCCESS)

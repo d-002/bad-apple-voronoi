@@ -33,7 +33,7 @@ def read_func(path):
             y, x = divmod(i, w)
             if i < w * h:
                 i_ = (y + dy) * old_w + (x + dx)
-                value = int(pixels[i_][0] >= 128)
+                value = int(pixels[i_][0] >= 200)
             else:
                 value = 0
             n = (n << 1) + value

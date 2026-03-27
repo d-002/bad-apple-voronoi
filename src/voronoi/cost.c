@@ -65,19 +65,27 @@ double compute_secondary_cost(const struct image *image,
     const struct cell *cell = cells + i;
     double x = cell->x, y = cell->y;
 
-    double closest_dist = -1;
+    double repulsion = -1;
+    const double epsilon = 1e-9;
+
+    // compute the closest distance to the other cells
     for (int j = 0; j < N_CELLS; j++)
     {
         if (i == j)
             continue;
 
         const struct cell *cell = cells + j;
-        double dist = sqrt(SQR(cell->x - x) + SQR(cell->y - y));
-        if (dist < closest_dist || closest_dist < 0)
-            closest_dist = dist;
+        double dist = SQR(cell->x - x) + SQR(cell->y - y);
+        repulsion += 1 / (dist + epsilon);
     }
 
-    return SQR(closest_dist - image->ideal_distance) / image->size;
+    // also take the borders into account
+    repulsion += 1 / (SQR(2 * x) + epsilon);
+    repulsion += 1 / (SQR(2 * y) + epsilon);
+    repulsion += 1 / (SQR(2 * (image->w - x)) + epsilon);
+    repulsion += 1 / (SQR(2 * (image->h - y)) + epsilon);
+
+    return repulsion;
 }
 
 void *compute_gradient_part(void *data)
@@ -113,7 +121,7 @@ void *compute_gradient_part(void *data)
         double cost2 = compute_cost(args->image, args->cell_copies);
         cost2 += (compute_secondary_cost(args->image, args->cell_copies, i)
                   - secondary1)
-            / (x2 - x) * SECONDARY_COST_FACTOR;
+            * SECONDARY_COST_FACTOR;
         cell->x = x;
         args->out->dx[i] = (cost2 - args->cost1) / (x2 - x);
 
@@ -121,7 +129,7 @@ void *compute_gradient_part(void *data)
         cost2 = compute_cost(args->image, args->cell_copies);
         cost2 += (compute_secondary_cost(args->image, args->cell_copies, i)
                   - secondary1)
-            / (y2 - y) * SECONDARY_COST_FACTOR;
+            * SECONDARY_COST_FACTOR;
         cell->y = y;
         args->out->dy[i] = (cost2 - args->cost1) / (y2 - y);
 

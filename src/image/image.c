@@ -1,7 +1,6 @@
 #include "image.h"
 
 #include <fcntl.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -27,7 +26,6 @@ enum error_code image_load(const char *path, struct image *image)
     image->h = ((unsigned char)size_buf[2] << 8) + (unsigned char)size_buf[3];
     image->size = image->w * image->h;
     image->pixels = calloc(image->size / 8 + 1, sizeof(uint8_t));
-    image->ideal_distance = sqrt((double)image->size / N_CELLS);
 
     char buf[BUF_SIZE];
     ssize_t count;

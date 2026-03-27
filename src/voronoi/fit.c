@@ -21,12 +21,11 @@ enum error_code image_fit(const struct image *image,
 
     // try to skip the loop entirely
     bool done = 1 - cost > TARGET_FIT_PROPORTION;
-    int iteration;
+    int iteration = 0;
 
     struct gradient gradient;
     struct gradient moving_average = { 0 };
-    for (iteration = 0; iteration < MAX_ITERATIONS && !done && running;
-         iteration++)
+    for (; iteration < MAX_ITERATIONS && !done && running; iteration++)
     {
         compute_gradient(image, shared_data->cells, &gradient, cost);
 
@@ -121,12 +120,15 @@ enum error_code image_fit(const struct image *image,
     }
 
 #ifdef VERBOSE
-    if (running)
+    if (running && done)
     {
-        if (done)
+        if (iteration == 0)
+            loginfo(
+                "Gradient descent skipped due to satisfactory initial cost.");
+        else
             loginfo("Gradient descent done in %d/%d iterations, final accuracy "
                     "score is %.3f%%.",
-                    iteration + 1, MAX_ITERATIONS, (1 - cost) * 100);
+                    iteration, MAX_ITERATIONS, (1 - cost) * 100);
     }
 #endif /* VERBOSE */
     if (running && !done)

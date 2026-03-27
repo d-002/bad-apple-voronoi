@@ -7,6 +7,7 @@ Instructions:
 - The outputted video file is `./video_out.mp4`.
 
 Improvement steps:
+- JFA
 - Optimization ideas: make a thread pool and keep it for the whole program,
   profile to see speed increase potential, parallelize image creation
 - Rendering idea: smoothing in between frames, possible replacement to %
