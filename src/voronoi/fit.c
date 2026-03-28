@@ -49,16 +49,8 @@ enum error_code image_fit(const struct image *image,
                 + (1 - MOMENTUM) * gradient.dy[i];
             moving_average.dc[i] = MOMENTUM * moving_average.dc[i]
                 + (1 - MOMENTUM) * (gradient.dc[i] < 0 ? -1 : 1);
-#ifdef WEIGHTED
-            moving_average.dw[i] = MOMENTUM * moving_average.dw[i]
-                + (1 - MOMENTUM) * gradient.dw[i];
-#endif /* WEIGHTED */
         }
 
-#ifdef WEIGHTED
-        double min_weight = MAX_WEIGHT;
-        double max_weight = MIN_WEIGHT;
-#endif /* WEIGHTED */
         for (int i = 0; i < N_CELLS; i++)
         {
             struct cell *cell = shared_data->cells + i;
@@ -71,28 +63,7 @@ enum error_code image_fit(const struct image *image,
             cell->y = MIN2(MAX2(0, cell->y), image->h - 1);
             cell->training_color = MIN2(MAX2(0, cell->training_color), 1);
             cell->color = cell->training_color < .5 ? BLACK : WHITE;
-
-#ifdef WEIGHTED
-            cell->weight -= moving_average.dw[i] * weight_learning_rate;
-            min_weight = MIN2(min_weight, cell->weight);
-            max_weight = MAX2(max_weight, cell->weight);
-#endif /* WEIGHTED */
         }
-
-#ifdef WEIGHTED
-        // normalize weights
-        if (min_weight < max_weight)
-        {
-            double span = max_weight - min_weight;
-            for (int i = 0; i < N_CELLS; i++)
-            {
-                struct cell *cell = shared_data->cells + i;
-                cell->weight = (cell->weight - min_weight) / span
-                        * (MAX_WEIGHT - MIN_WEIGHT)
-                    + MIN_WEIGHT;
-            }
-        }
-#endif /* WEIGHTED */
 
         pos_learning_rate *= LEARNING_RATE_DECAY;
         weight_learning_rate *= LEARNING_RATE_DECAY;

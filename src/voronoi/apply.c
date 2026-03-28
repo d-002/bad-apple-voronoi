@@ -26,9 +26,6 @@ enum error_code image_apply_voronoi(struct image *image,
             {
                 const struct cell *cell = shared_data->cells + i;
                 double dist = SQR(cell->x - x) + SQR(cell->y - y);
-#ifdef WEIGHTED
-                dist *= SQR(cell->weight);
-#endif /* WEIGHTED */
                 if (dist < closest_dist || closest_dist < 0)
                 {
                     color = cell->color;

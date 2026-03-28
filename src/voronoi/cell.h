@@ -1,8 +1,6 @@
 #ifndef CELL_H
 #define CELL_H
 
-#include "utils/utils.h"
-
 // number of cells in a given frame
 #define N_CELLS 200
 
@@ -16,9 +14,6 @@ struct cell
 {
     double x;
     double y;
-#ifdef WEIGHTED
-    double weight;
-#endif /* WEIGHTED */
 
     enum color_class color;
 

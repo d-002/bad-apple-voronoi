@@ -24,7 +24,10 @@ OBJ=src/image/image.o \
 
 # pipeline steps
 
-all: $(TARGET) extract_frames convert_images1 fit_voronoi convert_images2 group_frames
+all: $(TARGET) init_tree extract_frames convert_images1 fit_voronoi convert_images2 group_frames
+
+init_tree:
+	@mkdir -p $(IMAGES_INPUT) $(IMAGES_BNW) $(IMAGES_VORONOI) $(IMAGES_OUTPUT)
 
 extract_frames:
 	@echo -e "\n##### 1/5 -- FRAMES AND VIDEO EXTRACTION"

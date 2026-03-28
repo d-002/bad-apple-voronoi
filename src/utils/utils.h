@@ -2,7 +2,6 @@
 #define UTILS_H
 
 #define VERBOSE
-// #define WEIGHTED
 
 #define SQR(x) ((x) * (x))
 #define ABS(x) ((x) < 0 ? -(x) : (x))

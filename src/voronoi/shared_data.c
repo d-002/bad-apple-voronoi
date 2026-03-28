@@ -84,9 +84,6 @@ void init_data(struct voronoi_data *shared_data, const struct image *image)
         struct cell *cell = shared_data->cells + i;
         cell->x = (unsigned)rand() % image->w;
         cell->y = (unsigned)rand() % image->h;
-#ifdef WEIGHTED
-        cell->weight = (MIN_WEIGHT + MAX_WEIGHT) / 2.;
-#endif /* WEIGHTED */
         cell->training_color = (double)rand() / RAND_MAX;
         cell->color = cell->training_color < .5 ? BLACK : WHITE;
     }

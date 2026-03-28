@@ -40,9 +40,6 @@ double compute_cost(const struct image *image, const struct cell cells[N_CELLS])
             {
                 const struct cell *cell = cells + i;
                 double dist = SQR(cell->x - x) + SQR(cell->y - y);
-#ifdef WEIGHTED
-                dist *= SQR(cell->weight);
-#endif /* WEIGHTED */
                 if (dist < closest_dist || closest_dist < 0)
                 {
                     color2 = cell->training_color;
@@ -73,9 +70,6 @@ double compute_secondary_cost(const struct image *image,
 
         const struct cell *cell = cells + j;
         double dist = SQR(cell->x - x) + SQR(cell->y - y);
-#ifdef WEIGHTED
-        dist *= SQR(cell->weight);
-#endif /* WEIGHTED */
         repulsion += 1 / (dist + epsilon);
     }
 
@@ -96,9 +90,6 @@ void *compute_gradient_part(void *data)
         struct cell *cell = args->cell_copies + i;
         const double x = cell->x, y = cell->y;
         const double c = cell->training_color;
-#ifdef WEIGHTED
-        const double w = cell->weight;
-#endif /* WEIGHTED */
 
         // find points in bounds to avoid using e.g. x2-x conditions
         const double x2 = x < args->image->w / 2. ? x + SAMPLE_POS_RADIUS
@@ -107,11 +98,6 @@ void *compute_gradient_part(void *data)
                                                   : y - SAMPLE_POS_RADIUS;
         const double c2 =
             c < .5 ? c + SAMPLE_COLOR_RADIUS : c - SAMPLE_COLOR_RADIUS;
-#ifdef WEIGHTED
-        const double w2 = w < (MIN_WEIGHT + MAX_WEIGHT) / 2.
-            ? w + SAMPLE_WEIGHT_RADIUS
-            : w - SAMPLE_WEIGHT_RADIUS;
-#endif /* WEIGHTED */
 
         // for position changes, use a secondary cost to even out the cells
         double secondary1 =
@@ -132,13 +118,6 @@ void *compute_gradient_part(void *data)
             * SECONDARY_COST_FACTOR;
         cell->y = y;
         args->out->dy[i] = (cost2 - args->cost1) / (y2 - y);
-
-#ifdef WEIGHTED
-        cell->weight = w2;
-        cost2 = compute_cost(args->image, args->cell_copies);
-        cell->weight = w;
-        args->out->dw[i] = (cost2 - args->cost1) / (w2 - w);
-#endif /* WEIGHTED */
 
         cell->training_color = c2;
         cost2 = compute_cost(args->image, args->cell_copies);
