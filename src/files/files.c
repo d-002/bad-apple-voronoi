@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 #include "logger/logger.h"
+#include "utils/utils.h"
 #include "voronoi/voronoi.h"
 
 static char *join_path(const char *path1, const char *path2)

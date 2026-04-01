@@ -24,6 +24,7 @@ def checks():
     list_destination = set(os.listdir(destination))
 
 def worker(*args, **kwargs):
+    is_thread = kwargs.get('is_thread', True)
     try:
         shared_value, source, destination, read_func, transform_func, \
                 write_func, files = args
@@ -32,9 +33,10 @@ def worker(*args, **kwargs):
             data_destination = transform_func(data_source)
             write_func(os.path.join(destination, file), data_destination)
 
-            lock.acquire()
-            shared_value.value += 1
-            lock.release()
+            if is_thread:
+                lock.acquire()
+                shared_value.value += 1
+                lock.release()
 
     except Exception as e:
         print('Exception in worker:', file=sys.stderr)
@@ -61,20 +63,21 @@ def progress_bar(i, n):
     count = round(prop * size)
     print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
             f'{round(prop * 100):>3}%, spent: {hr_s}:{min_s:02}:{sec_s:02}, ' \
-            f'eta: {hr_e}:{min_e:02}:{sec_e:02}', end='\r')
+            f'eta: {hr_e}:{min_e:02}:{sec_e:02}', end='\n')
 
 def progress_bar_loop(n, shared_value):
     global start
     start = time.time()
 
     while not done:
-        progress_bar(shared_value.value, n)
+        # +1 because main thread will have completed one
+        progress_bar(shared_value.value + main_thread_is_done, n)
         time.sleep(.5)
 
     print(f'\n{sys.argv[0]} is done.')
 
 def main(read_func, transform_func, write_func):
-    global done
+    global done, main_thread_is_done
     todo = set()
 
     for file in list_destination:
@@ -96,8 +99,8 @@ def main(read_func, transform_func, write_func):
     shared_value = manager.Value('i', 0)
 
     todo = list(todo)
-    n_workers = min(os.process_cpu_count(), len(todo))
-    if not n_workers:
+    n_workers = min(os.process_cpu_count(), len(todo) - 1)
+    if n_workers <= 0:
         print(f'{sys.argv[0]}: nothing to do.')
         return
 
@@ -109,14 +112,24 @@ def main(read_func, transform_func, write_func):
                for i in range(n_workers)]
 
     done = False
-    Thread(target=progress_bar_loop, args=(len(todo), shared_value)).start()
+    start = time.time()
     pool = Pool(n_workers, initializer=share_lock, initargs=(lock,))
-    for a, b in ranges:
+    Thread(target=progress_bar_loop, args=(len(todo), shared_value)).start()
+
+    # run most of the work in asynchronous workers, but keep one in main thread
+    for a, b in ranges[1:]:
         pool.apply_async(worker, (shared_value, source, destination, read_func,
                                   transform_func, write_func, todo[a:b]))
+    a, b = ranges[0]
+    main_thread_is_done = False
+    worker(shared_value, source, destination, read_func, transform_func,
+           write_func, todo[a:b], is_thread=False)
+    main_thread_is_done = True
+
     try:
         pool.close()
         pool.join()
+        print('joined')
         progress_bar(len(todo), len(todo))
     except Exception as e:
         print('Exception while waiting for workers:', file=sys.stderr)
