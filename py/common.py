@@ -58,7 +58,7 @@ def progress_bar(i: int, n: int) -> None:
     count = round(prop * size)
     print(f'Progress: [{'=' * count}{' ' * (size - count)}] ' \
             f'{round(prop * 100):>3}%, spent: {hr_s}:{min_s:02}:{sec_s:02}, ' \
-            f'eta: {hr_e}:{min_e:02}:{sec_e:02}', end='\n')
+            f'eta: {hr_e}:{min_e:02}:{sec_e:02}', end='\r')
 
 def progress_bar_loop(n: int, shared_value) -> None:
     global start
@@ -125,3 +125,4 @@ def main(read_func: Callable[[str], Any], transform_func: Callable[[Any], Any],
         print(e, file=sys.stderr)
 
     done = True
+    print()
