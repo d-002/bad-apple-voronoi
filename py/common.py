@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-from typing import Any, Function
+from typing import Any, Callable
 from threading import Thread
 from multiprocessing import Manager, Pool
 
@@ -77,8 +77,8 @@ def progress_bar_loop(n: int, shared_value) -> None:
 
     print(f'\n{sys.argv[0]} is done.')
 
-def main(read_func: Function[str, Any], transform_func: Function[Any, Any],
-         write_func: Function[[str, Any], None]) -> None:
+def main(read_func: Callable[[str], Any], transform_func: Callable[[Any], Any],
+         write_func: Callable[[str, Any], None]) -> None:
     global done, main_thread_is_done
     todo = set()
 
