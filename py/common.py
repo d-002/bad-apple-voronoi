@@ -1,10 +1,11 @@
 import os
 import sys
 import time
+from typing import Any, Function
 from threading import Thread
 from multiprocessing import Manager, Pool
 
-def checks():
+def checks() -> None:
     global force, source, destination, list_source, list_destination
 
     force = False
@@ -23,7 +24,7 @@ def checks():
     list_source = set(os.listdir(source))
     list_destination = set(os.listdir(destination))
 
-def worker(*args, **kwargs):
+def worker(*args, **kwargs) -> None:
     is_thread = kwargs.get('is_thread', True)
     try:
         shared_value, source, destination, read_func, transform_func, \
@@ -42,11 +43,11 @@ def worker(*args, **kwargs):
         print('Exception in worker:', file=sys.stderr)
         print(e, file=sys.stderr)
 
-def share_lock(l):
+def share_lock(l) -> None:
     global lock
     lock = l
 
-def progress_bar(i, n):
+def progress_bar(i: int, n: int) -> None:
     spent = time.time() - start
     eta = spent * (n / (i + 1) - 1)
     hr_s, s = divmod(round(spent), 3600)
@@ -65,7 +66,7 @@ def progress_bar(i, n):
             f'{round(prop * 100):>3}%, spent: {hr_s}:{min_s:02}:{sec_s:02}, ' \
             f'eta: {hr_e}:{min_e:02}:{sec_e:02}', end='\n')
 
-def progress_bar_loop(n, shared_value):
+def progress_bar_loop(n: int, shared_value) -> None:
     global start
     start = time.time()
 
@@ -76,7 +77,8 @@ def progress_bar_loop(n, shared_value):
 
     print(f'\n{sys.argv[0]} is done.')
 
-def main(read_func, transform_func, write_func):
+def main(read_func: Function[str, Any], transform_func: Function[Any, Any],
+         write_func: Function[[str, Any], None]) -> None:
     global done, main_thread_is_done
     todo = set()
 
@@ -112,7 +114,6 @@ def main(read_func, transform_func, write_func):
                for i in range(n_workers)]
 
     done = False
-    start = time.time()
     pool = Pool(n_workers, initializer=share_lock, initargs=(lock,))
     Thread(target=progress_bar_loop, args=(len(todo), shared_value)).start()
 

@@ -1,15 +1,17 @@
-from common import checks, main
-from PIL import Image
-import numpy as np
 import struct
+import numpy as np
+from PIL import Image
+from typing import Any
 
-def read_func(path):
+from common import checks, main
+
+def read_func(path: str) -> Any:
     with open(path, 'rb') as f:
         data = f.read()
 
     return data
 
-def transform_func(data):
+def transform_func(data: Any) -> Any:
     w, h = struct.unpack('>HH', data[:4])
     pixels = np.zeros((h, w, 3), dtype=np.uint8)
 
@@ -26,7 +28,7 @@ def transform_func(data):
 
     return Image.fromarray(pixels, 'RGB')
 
-def write_func(path, data):
+def write_func(path: str, data: Any) -> None:
     data.save(path)
 
 if __name__ == '__main__':

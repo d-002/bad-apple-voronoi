@@ -1,7 +1,9 @@
-from common import checks, main
+from typing import Any
 from PIL import Image
 
-def read_func(path):
+from common import checks, main
+
+def read_func(path: str) -> Any:
     image = Image.open(path).convert('RGB')
     old_w, old_h = image.size
     pixels = image.get_flattened_data()
@@ -44,10 +46,10 @@ def read_func(path):
 
     return buf
 
-def transform_func(data):
+def transform_func(data: Any) -> Any:
     return data
 
-def write_func(path, data):
+def write_func(path: str, data: Any) -> None:
     with open(path, 'wb') as f:
         f.write(data)
 
