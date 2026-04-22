@@ -142,42 +142,42 @@ def find_circumcenter(triangle: Triangle) -> np.ndarray:
 
     return np.array([x, y])
 
-def get_out_edge(bounds: np.ndarray, center: np.ndarray, edge: Edge) -> Edge:
+def get_out_edge(bounds: np.ndarray, triangle: Triangle, center: np.ndarray,
+                 edge: Edge) -> Edge:
     (x0, y0), (x1, y1) = bounds
 
-    # find the ray direction
-    shift = (edge.a + edge.b) / 2 - center
+    def find_last_point(triangle: Triangle, edge: Edge) -> np.ndarray:
+        # could be made more efficient by adding to the commonedge data
+        # structure, or by using points average?
+        a, b, c = triangle.points
+        ea, eb = edge.a, edge.b
+        if np.all(ea == a):
+            return c if np.all(eb == b) else b
+        if np.all(ea == b):
+            return a if np.all(eb == c) else c
+        return a if np.all(eb == b) else b
+
+    # find the ray direction, beware of obtuse triangles
+    shift = edge.b - edge.a
+    shift[0], shift[1] = -shift[1], shift[0]
     shift /= np.linalg.norm(shift)
+    c = find_last_point(triangle, edge)
+    if np.dot(shift, c - (edge.a + edge.b) / 2) > 0:
+        shift *= -1
 
     # stop at the closest edge
     x, y = np.abs(shift)
     cx, cy = center
-    lr_dist = np.array([cx - x0, x1 - cx])
-    td_dist = np.array([cy - y0, y1 - cy])
-    if lr_dist.min() * y < td_dist.min() * x:
+    lr_dist = min(cx - x0, x1 - cx)
+    td_dist = min(cy - y0, y1 - cy)
+    if lr_dist * y < td_dist * x:
         # will hit left/right walls earlier
-        if lr_dist[0] < lr_dist[1]:
-            if shift[0] > 0:
-                shift *= -1
-            endpoint = center + shift * lr_dist[0] / x
-            endpoint[0] = x0
-        else:
-            if shift[0] < 0:
-                shift *= -1
-            endpoint = center + shift * lr_dist[1] / x
-            endpoint[0] = x1
+        endpoint = center + shift * lr_dist / x
+        endpoint[0] = x0 if shift[0] < 0 else x1
     else:
         # will hit top/bottom walls earlier
-        if td_dist[0] < td_dist[1]:
-            if shift[1] > 0:
-                shift *= -1
-            endpoint = center + shift * td_dist[0] / y
-            endpoint[1] = y0
-        else:
-            if shift[1] < 0:
-                shift *= -1
-            endpoint = center + shift * td_dist[1] / y
-            endpoint[1] = y1
+        endpoint = center + shift * td_dist / y
+        endpoint[1] = y0 if shift[1] < 0 else y1
 
     return Edge(center, endpoint)
 
@@ -191,9 +191,6 @@ def to_voronoi_edges(bounds: np.ndarray,
 
     edges_pool = []
     for i, triangle in enumerate(triangulation):
-        if not active[i]:
-            continue
-
         for edge in triangle.edges:
             if edge in edges_pool:
                 # will need optimizing / changes
@@ -210,7 +207,12 @@ def to_voronoi_edges(bounds: np.ndarray,
         # bounds: extend a ray
         if len(conn_tri) == 1:
             index = conn_tri[0]
-            out_edge = get_out_edge(bounds, circumcenters[index], edge)
+            if not active[index]:
+                continue
+
+            triangle = triangulation[index]
+            center = circumcenters[index]
+            out_edge = get_out_edge(bounds, triangle, center, edge)
             voronoi_edges.append(VoronoiEdge(out_edge, (edge.a, edge.b)))
             continue
 
@@ -239,6 +241,8 @@ def to_voronoi_polygons(bounds: np.ndarray, cells: np.ndarray,
             polygons[i].edges.append(edge)
 
     return polygons
+
+np.random.seed(0)
 
 # [[x0, y0], [x1, y1]]
 bounds = np.array([[-10, -10], [10, 10]])
