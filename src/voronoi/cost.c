@@ -26,7 +26,11 @@ struct thread_args
 
 double compute_cost(const struct image *image, const struct cell cells[N_CELLS])
 {
-    // TODO only check around the edited cell if applicable
+    // TODO new method with Delaunay triangulation: create the voronoi
+    // tesselation first, then once again for every cell change, to compute the
+    // main cost by only evaluating the union of the cell and its previous
+    // neighbors, and the cell and its new neighbors. This will also be used to
+    // compute the secondary cost.
     double total_cost = 0;
 
     for (int y = 0; y < image->h; y += PRECISION)
